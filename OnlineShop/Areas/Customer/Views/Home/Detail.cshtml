@@ -1,0 +1,531 @@
+﻿@model BusinessLogic.DtoModels.Dto_Product
+@{
+	ViewData["Title"] = "Details";
+	var _reviews = ViewData["reviews"] as Dictionary<string, Dictionary<string, string>>;
+	var _rate = ViewData["reviewRate"] as double?;
+	var _chars = ViewData["productChars"] as Dictionary<string, Dictionary<string, string>>;
+	var _desc = ViewData["productDesc"] as string[];
+	var _colors = ViewData["colors"] as List<string>;
+
+	var _rateof5 = ViewData["rateof5"] as int[];
+	var _rateof4 = ViewData["rateof4"] as int[];
+	var _rateof3 = ViewData["rateof3"] as int[];
+	var _rateof2 = ViewData["rateof2"] as int[];
+	var _rateof1 = ViewData["rateof1"] as int[];
+}
+
+@using BusinessLogic.Services
+@using BusinessLogic.DtoModels
+@using OnlineShop.Utility
+@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor HttpContextAccessor
+@{
+    List<Dto_Product> products = HttpContextAccessor.HttpContext.Session.Get<List<Dto_Product>>("products");
+    Dto_Product product = null;
+    if (products != null)
+    {
+        product = products.FirstOrDefault(c => c.Id == Model.Id);
+    }
+}
+
+<!-- SECTION -->
+<div class="section">
+	<!-- container -->
+	<div class="container">
+		<!-- row -->
+		<div class="row">
+			<!-- Product main img -->
+			<div class="col-md-5 col-md-push-2"> <!-- TODO -->
+				<div id="product-main-img">
+					<div class="product-preview">
+						<img src="~/@Model.Image" alt="~/Images/noimage.png">
+					</div>
+
+					<div class="product-preview">
+						<img src="~/Images/noimage.png" alt="~/Images/noimage.png">
+					</div>
+
+					<div class="product-preview">
+						<img src="~/Images/noimage.png" alt="~/Images/noimage.png">
+					</div>
+
+					<div class="product-preview">
+						<img src="~/Images/noimage.png" alt="~/Images/noimage.png">
+					</div>
+				</div>
+			</div>
+			<!-- /Product main img -->
+
+			<!-- Product thumb imgs -->
+			<div class="col-md-2  col-md-pull-5"> <!-- TODO -->
+				<div id="product-imgs">
+					<div class="product-preview">
+						<img src="~/@Model.Image" alt="~/Images/noimage.png">
+					</div>
+
+					<div class="product-preview">
+						<img src="~/Images/noimage.png" alt="~/Images/noimage.png">
+					</div>
+
+					<div class="product-preview">
+						<img src="~/Images/noimage.png" alt="~/Images/noimage.png">
+					</div>
+
+					<div class="product-preview">
+						<img src="~/Images/noimage.png" alt="~/Images/noimage.png">
+					</div>
+				</div>
+			</div>
+			<!-- /Product thumb imgs -->
+
+			<!-- Product details -->
+			<div class="col-md-5">
+				<div class="product-details">
+					<h2 class="product-name">@Model.Name</h2>
+					<div>
+						<div class="product-rating">
+							@if (_rate != null)
+							{
+								@for (int i = 0; i < 5; i++)
+								{
+									@if (i < _rate)
+									{
+										<i class="fa fa-star"></i>
+									}
+									else
+									{
+										<i class="fa fa-star-o"></i>
+									}
+								}
+							}
+						</div>
+						@if (_rate != null)
+						{
+						<a class="review-link" href="#">@_reviews.Count()
+							Review(s) | Add your review</a>
+						}
+
+					</div>
+					<div>
+						<h3 class="product-price">$@Model.Price <del class="product-old-price">$@(Model.Price + (Model.Price * 0.1m))</del></h3>
+						@if (@Model.IsAvailable)
+						{
+							<span class="product-available">In Stock</span>
+						}
+						else
+						{
+							<span class="product-notavailable">Out of Stock</span>
+						}
+					</div>
+					@if (_desc != null)
+					{
+						<p>@(_desc[0])...<a class="review-link" href="#">More description</a></p>
+					}
+					@if (_colors != null)
+					{
+						@if (_colors.Count() > 1)
+						{
+							<div class="product-options">
+								<label>
+									Color
+									<select class="input-select">
+										@for (int i = 0; i < _colors.Count(); i++)
+										{
+											<option value="@i">@_colors[i]</option>
+										}
+									</select>
+								</label>
+							</div>
+						}
+					}
+
+					<div class="add-to-cart form-group">
+						<div class="qty-label">
+							Qty
+							<div class="input-number">
+								<input type="number">
+								<span class="qty-up">+</span>
+								<span class="qty-down">-</span>
+							</div>
+						</div>
+
+						@if (Model.IsAvailable)
+						{
+							@if (product != null) 
+							{
+								<form asp-action="Remove" asp-route-id="@Model.Id" enctype="multipart/form-data">
+									<button style="width:300px;margin-top:15px" type="submit" class="add-to-cart-btn form-control">
+										<i class="fa-solid fa-xmark"></i>
+										Remove from Cart
+									</button>
+								</form>
+							}
+							else
+							{
+								<form asp-action="Detail" method="post" enctype="multipart/form-data">
+									<button style="width:300px;margin-top:15px" type="submit" class="add-to-cart-btn form-control">
+										<i class="fa-solid fa-shopping-cart"></i>
+										Add to Cart
+									</button>
+								</form>
+							}
+						}
+					</div>
+
+
+
+
+
+
+					<ul class="product-btns">
+						<li><a href="#"><i class="fa-solid fa-heart-o"></i> add to wishlist</a></li>
+						<li><a href="#"><i class="fa-solid fa-exchange"></i> add to compare</a></li>
+					</ul>
+
+					<ul class="product-links">
+						<li>Category:</li>
+						<li><a href="#">@Model.ProductTypes</a></li>
+						<li><a href="#">@Model.SpecialTag</a></li>
+					</ul>
+				</div>
+			</div>
+			<!-- /Product details -->
+
+			<!-- Product tab -->
+			<div class="col-md-12">
+				<div id="product-tab">
+					<!-- product tab nav -->
+					<ul class="tab-nav">
+						<li class="active"><a data-toggle="tab" href="#tab1" onclick={fade1()}>Description</a></li>
+						<li class=""><a data-toggle="tab" href="#tab2" onclick={fade2()}>Details</a></li>
+						<li class=""><a data-toggle="tab" href="#tab3" onclick={fade3()}>Reviews</a></li>
+					</ul>
+					<!-- /product tab nav -->
+
+					<!-- product tab content -->
+					<div class="tab-content">
+						<!-- tab1  -->
+						<div id="tab1" class="tab-pane fade in active">
+							<div class="row">
+								<div class="col-md-12">
+									@if (_desc != null)
+									{
+										@foreach (var item in _desc)
+										{
+											<p>@item</p>
+											<br/>
+										}
+									}
+									else
+									{
+										<p>No description</p>
+									}
+								</div>
+							</div>
+						</div>
+						<!-- /tab1  -->
+
+						<!-- tab2  -->
+						<div id="tab2" class="tab-pane fade in">
+							<div class="row">
+								<div class="col-md-12">
+								@if (_chars != null)
+								{
+									@foreach (var item in _chars)
+									{
+										<h2>@item.Key</h2>
+										<table class="table border">       
+											<tbody>
+
+												@foreach (var itemInfo in item.Value)
+												{
+													<tr>
+														<td class="col-md-2">@itemInfo.Key</td>
+														<td class="col-md-2">@itemInfo.Value</td>
+													</tr>
+												}
+
+											</tbody>
+										</table>
+									}
+								}
+								else
+								{
+									<p>No description</p>
+								}
+								</div>
+							</div>
+						</div>
+						<!-- /tab2  --> <!-- TODO -->
+
+						<!-- tab3  -->
+						<div id="tab3" class="tab-pane fade in">
+							<div class="row">
+								<!-- Rating -->
+								<div class="col-md-3">
+									<div id="rating">
+										<div class="rating-avg">
+											<span>@_rate</span>
+											<div class="rating-stars">
+												@if (_rate != null)
+												{
+													@for (int i = 0; i < 5; i++)
+													{
+														@if (i < _rate)
+														{
+															<i class="fa fa-star"></i>
+														}
+														else
+														{
+															<i class="fa fa-star-o"></i>
+														}
+													}
+												}
+											</div>
+										</div>
+
+
+										<ul class="rating">
+											<li>
+												<div class="rating-stars">
+													<i class="fa-solid fa-star"></i>
+													<i class="fa-solid fa-star"></i>
+													<i class="fa-solid fa-star"></i>
+													<i class="fa-solid fa-star"></i>
+													<i class="fa-solid fa-star"></i>
+												</div>
+												<div class="rating-progress">
+													<div style="width: @_rateof5[1]%;"></div>
+												</div>
+												<span class="sum">@_rateof5[0]</span>
+											</li>
+											<li>
+												<div class="rating-stars">
+													<i class="fa-solid fa-star"></i>
+													<i class="fa-solid fa-star"></i>
+													<i class="fa-solid fa-star"></i>
+													<i class="fa-solid fa-star"></i>
+													<i class="fa-regular fa-star"></i>
+												</div>
+												<div class="rating-progress">
+													<div style="width: @_rateof4[1]%;"></div>
+												</div>
+												<span class="sum">@_rateof4[0]</span>
+											</li>
+											<li>
+												<div class="rating-stars">
+													<i class="fa-solid fa-star"></i>
+													<i class="fa-solid fa-star"></i>
+													<i class="fa-solid fa-star"></i>
+													<i class="fa-regular fa-star"></i>
+													<i class="fa-regular fa-star"></i>
+												</div>
+												<div class="rating-progress">
+													<div style="width: @_rateof3[1]%"></div>
+												</div>
+												<span class="sum">@_rateof3[0]</span>
+											</li>
+											<li>
+												<div class="rating-stars">
+													<i class="fa-solid fa-star"></i>
+													<i class="fa-solid fa-star"></i>
+													<i class="fa-regular fa-star"></i>
+													<i class="fa-regular fa-star"></i>
+													<i class="fa-regular fa-star"></i>
+												</div>
+												<div class="rating-progress">
+													<div style="width: @_rateof2[1]%"></div>
+												</div>
+												<span class="sum">@_rateof2[0]</span>
+											</li>
+											<li>
+												<div class="rating-stars">
+													<i class="fa-solid fa-star"></i>
+													<i class="fa-regular fa-star"></i>
+													<i class="fa-regular fa-star"></i>
+													<i class="fa-regular fa-star"></i>
+													<i class="fa-regular fa-star"></i>
+												</div>
+												<div class="rating-progress">
+													<div style="width: @_rateof1[1]%"></div>
+												</div>
+												<span class="sum">@_rateof1[0]</span>
+											</li>
+										</ul>
+									</div>
+								</div>
+								<!-- /Rating -->
+
+								<!-- Reviews -->
+								<div class="col-md-6">
+									<div id="reviews">
+										<ul class="reviews">
+											@if (_reviews != null)
+											{
+												@foreach (var item in _reviews)
+												{
+													<li>
+														<div class="review-heading">
+															<h5 class="name">@item.Value["UserId"]</h5>
+															<p class="date">@item.Value["ReviewDate"]</p>
+															<div class="review-rating">
+																@for (int i = 0; i < int.Parse(@item.Value["Rate"]); i++)
+																{
+																	<i class="fa fa-star"></i>
+																}
+																@for (int i = int.Parse(@item.Value["Rate"]); i < 5; i++)
+																{
+																	<i class="fa fa-star-o empty"></i>
+																}
+															</div>
+														</div>
+														<div class="review-body">
+															<p>@item.Value["RewiewText"]</p>
+														</div>
+													</li>
+												}
+											}
+											else
+											{
+												
+											}
+										</ul>
+										<ul class="reviews-pagination"> <!-- TODO -->
+											<li class="active">1</li>
+											<li><a href="#">2</a></li>
+											<li><a href="#">3</a></li>
+											<li><a href="#">4</a></li>
+											<li><a href="#"><i class="fa fa-angle-right"></i></a></li>
+										</ul>
+									</div>
+								</div>
+								<!-- /Reviews -->
+
+								<!-- Review Form -->
+								<div class="col-md-3">
+									<div id="review-form">
+										<form class="review-form">
+											<input class="input" type="text" placeholder="Your Name">
+											<input class="input" type="email" placeholder="Your Email">
+											<textarea class="input" placeholder="Your Review"></textarea>
+											<div class="input-rating">
+												<span>Your Rating: </span>
+												<div class="stars">
+													<input id="star5" name="rating" value="5" type="radio"><label for="star5"></label>
+													<input id="star4" name="rating" value="4" type="radio"><label for="star4"></label>
+													<input id="star3" name="rating" value="3" type="radio"><label for="star3"></label>
+													<input id="star2" name="rating" value="2" type="radio"><label for="star2"></label>
+													<input id="star1" name="rating" value="1" type="radio"><label for="star1"></label>
+												</div>
+											</div>
+											<button class="primary-btn">Submit</button>
+										</form>
+									</div>
+								</div>
+								<!-- /Review Form -->
+							</div>
+						</div>
+						<!-- /tab3  -->
+					</div>
+					<!-- /product tab content  -->
+				</div>
+			</div>
+			<!-- /product tab -->
+		</div>
+		<!-- /row -->
+	</div>
+	<!-- /container -->
+</div>
+<!-- /SECTION -->
+
+@*<br />
+
+<h2 class="text-info">Product Details</h2>
+<form asp-action="Detail" method="post" enctype="multipart/form-data">
+    <div class="p-4 rounded border row">
+        <div asp-validation-summary="ModelOnly" class="text-danger">
+
+        </div>
+        <div class="col-8">
+            <div class="form-group row">
+                <div class="col-4">
+                    <label asp-for="Name"></label>
+                </div>
+                <div class="col-8">
+                    <input type="hidden" asp-for="Id" />
+                    <input asp-for="Name" readonly="readonly" class="form-control" />
+                </div>
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+            <div class="form-group row">
+                <div class="col-4">
+                    <label asp-for="Price"></label>
+                </div>
+                <div class="col-8">
+                    <input asp-for="Price" readonly="readonly" class="form-control" />
+                </div>
+                <span asp-validation-for="Price" class="text-danger"></span>
+            </div>
+            <div class="form-group row">
+                <div class="col-4">
+                    <label asp-for="ProductTypeId"></label>
+                </div>
+                <div class="col-8">
+                    <input asp-for="ProductTypes.ProductType" asp-items="ViewBag.productTypeId" readonly="readonly" class="form-control" />
+                </div>
+                <span asp-validation-for="ProductTypeId" class="text-danger"></span>
+            </div>
+
+            <div class="form-group row">
+                <div class="col-4">
+
+                </div>
+                <div class="col-8">
+                    @if (product != null)
+                    {
+                        <button type="submit" class="btn btn-danger form-control" asp-action="Remove" asp-route-id="@Model.Id">Remove to Cart</button>
+                    }
+                    else
+                    {
+                        <input type="submit" class="btn btn-info form-control" value="Add to Cart" />
+                    }
+                    
+                </div>
+
+            </div>
+            <div class="form-group">
+                <a asp-action="Index" class="btn btn-success">Back to List</a>
+            </div>
+        </div>
+        <div class="col-1"></div>
+        <div class="col-3">
+            <img src="~/@Model.Image" width="250px" height="250px" style="border-radius: 5px;border: 1px solid #efefef"/>
+            @if (Model.IsAvailable)
+            {
+                <img style="margin-top:15px" src="~/Images/Available.png" width="250px" height="50px"/>
+            }
+            else
+            {
+                <img style="margin-top:15px" src="~/Images/Out.png" width="250px" height="50px"/>
+            }
+
+        </div>
+
+    </div>
+</form>
+
+<br /><br />
+
+
+*@
+
+@section Scripts{
+    @{ 
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+        await Html.RenderPartialAsync("_AntiValidationScriptsPartial");
+		await Html.RenderPartialAsync("_FadeInformationPartial");
+    }
+	<script>fade1()</script>
+}
+
+

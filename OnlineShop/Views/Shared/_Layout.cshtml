@@ -1,0 +1,218 @@
+﻿﻿@using System.Net.Http
+@using OnlineShop.Models
+@using OnlineShop.Utility
+@using Microsoft.AspNetCore.Http
+@using BusinessLogic.DtoModels
+@using System.Diagnostics
+@inject IHttpContextAccessor HttpContextAccessor
+@{
+    var userRole = HttpContextAccessor.HttpContext.Session.GetString("roleName");
+    int count = 0;
+    List<Dto_Product> products = HttpContextAccessor.HttpContext.Session.Get<List<Dto_Product>>("products");
+    if (products == null)
+    {
+        products = new List<Dto_Product>();
+    }
+    count = products.Count();
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - OnlineShop</title>
+
+	<!-- Bootstrap -->
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" />
+
+	<link href="https://fonts.googleapis.com/css?family=Poppins:400,700&display=swap" rel="stylesheet">
+
+	<!-- font awesome style -->
+	<link rel="stylesheet" type="text/css" href="css/font-awesome.min.css" />
+
+	<!-- responsive style -->
+	<link rel="stylesheet" type="text/css" href="css/responsive.css" />
+
+    <link rel="stylesheet" type="text/css" href="~/css/slick.css"/>
+ 	<link rel="stylesheet" type="text/css" href="~/css/slick-theme.css"/>
+    <link rel="stylesheet" type="text/css" href="~/css/nouislider.min.css"/>
+
+    <link rel="stylesheet" type="text/css" href="~/css/style.css"/>
+    <link rel="stylesheet" type="text/css" href="~/css/stylenew.css"/>
+    
+    <link rel="stylesheet" href="~/lib/font-awesome/css/all.css"/>
+    
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/css/alertify.min.css"/>
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/css/themes/bootstrap.min.css"/>
+
+
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.4/css/jquery.dataTables.min.css"/>
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/2.2.2/css/buttons.dataTables.min.css"/>
+    
+    <link rel="stylesheet" href="~/css/site.css" />
+
+    <style>
+        .error{
+            color: red;
+        }
+    </style>
+</head>
+
+
+<body>
+    @*
+                    <partial name="_LoginPartial" />
+                    <ul class="navbar-nav flex-grow-1">
+                        @if (userRole == "Admin")
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="Admin" asp-controller="ProductTypes" asp-action="Index">Product Types</a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="Admin" asp-controller="SpecialTag" asp-action="Index">Tag Name</a>
+                            </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="Admin" asp-controller="Product" asp-action="Index">Product</a>
+                            </li>
+                        }
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="Customer" asp-controller="Home" asp-action="Cart">
+                                <i class="fas fa-cart-arrow-down"></i>
+                                (@count)
+                            </a>
+                        </li>
+                    </ul>
+    *@
+
+    <header class="header_section">
+        <div class="header_top">
+            <div class="container-fluid">
+                <div class="top_nav_container">
+                    <!-- --- -->
+                    <div class="contact_nav">
+                        <a href="">
+                            <i class="fa fa-phone" aria-hidden="true"></i>
+                            <span>
+                                Info: INFO_FIELD_1
+                            </span>
+                        </a>
+                        <a href="">
+                            <i class="fa fa-envelope" aria-hidden="true"></i>
+                            <span>
+                                Info: INFO_FIELD_2
+                            </span>
+                        </a>
+                    </div>
+                    <!-- --- -->
+                    <form asp-controller="Search" asp-action="SearchIndex" class="search_form">
+                        <input type="hidden" value="1" name="page"/>
+                        <input type="text" name="searchString" class="input" placeholder="Search here...">
+                        <button class="search-btn">
+                            <i class="fa fa-search"></i>
+                        </button>
+                        
+                    </form>
+                    <!-- --- -->
+                    <button asp-area="Customer" asp-controller="Home" asp-action="Cart" type="submit" class="btn btn-primary">
+                        <i class="fa-solid fa-cart-shopping" aria-hidden="true"></i>
+                        Your Cart <span class="badge badge-light">@count</span>
+                    </button>
+
+                    <div class="user_option_box">
+                        <partial name="_LoginPartial" />
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- --- -->
+        <div class="header_bottom">
+            <div class="container-fluid">
+                <nav class="navbar navbar-expand-lg custom_nav-container ">
+                    <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
+                        <span>
+                            OnlineShop
+                        </span>
+                    </a>
+                    <!-- --- -->
+                    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class=""> </span>
+                    </button>
+                    <!-- --- -->
+                    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                        <ul class="navbar-nav ">
+                            @if (userRole == "Admin")
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-area="Admin" asp-controller="ProductTypes" asp-action="Index">Product Types</a>
+                                </li>
+
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-area="Admin" asp-controller="SpecialTag" asp-action="Index">Tag Name</a>
+                                </li>
+
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-area="Admin" asp-controller="Product" asp-action="Index">Product</a>
+                                </li>
+                            }
+                            <li class="nav-item active">
+                                <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">Home <span class="sr-only">(current)</span></a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="about.html"> About</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="product.html">Products</a>
+                            </li>
+                        </ul>
+                    </div>
+                </nav>
+            </div>
+        </div>
+    </header>
+    
+    <div class="container">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+	<br/><br/>
+
+    <footer class="border-top footer text-muted">
+        <div class="container">
+            &copy; 2022 - OnlineShop - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+        </div>
+    </footer>
+    
+
+    @*<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>*@
+
+	<script src="~/js/jquery.min.js"></script>
+	<script src="~/js/bootstrap.min.js"></script>
+	<script src="~/js/slick.min.js"></script>
+	<script src="~/js/nouislider.min.js"></script>
+	<script src="~/js/jquery.zoom.min.js"></script>
+	<script src="~/js/main.js"></script>
+
+    <script src="~/js/custom.js"></script>
+
+	<script src="~/js/site.js" asp-append-version="true"></script>
+
+    <script src="https://cdn.datatables.net/1.11.4/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.2.2/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.2.2/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.2.2/js/buttons.print.min.js"></script>
+
+	<script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+	<script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+
+    @RenderSection("Scripts", required: false)
+</body>
+</html>
