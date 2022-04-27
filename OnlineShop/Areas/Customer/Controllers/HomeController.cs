@@ -41,17 +41,6 @@ namespace OnlineShop.Areas.Customer.Controllers
             return View(resultItem);
         }
 
-        public async Task<IActionResult> SearchIndex(int? page, string searchString)
-        {
-            List<Dto_Product> products = _productManager.FindFullProductsThatContainName(searchString).ToList();
-            if (products == null)
-            {
-                return NotFound();
-            }
-            ViewBag.SearchString = searchString;
-            return View(products.ToPagedList(page ?? 1, 1));
-        }
-
         public IActionResult Privacy()
         {
             return View();
@@ -63,8 +52,12 @@ namespace OnlineShop.Areas.Customer.Controllers
             return View(new Dto_ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
 
-        // GET Product details action method
-        public async Task<ActionResult> Detail(int? id)
+
+
+
+
+
+        public async Task<IActionResult> Detail(int? id)
         {
             if (id == null)
             {
@@ -76,16 +69,15 @@ namespace OnlineShop.Areas.Customer.Controllers
             {
                 return NotFound();
             }
-            
+
             await MakeViewData(product);
 
             return View(product);
         }
 
-        // POST Product details action method
+
         [HttpPost]
-        [ActionName("Detail")]
-        public async Task<ActionResult> ProductDetail(int? id)
+        public async Task<IActionResult> AddToCart(int? id)
         {
             List<Dto_Product> products;
             if (id == null)
@@ -109,13 +101,48 @@ namespace OnlineShop.Areas.Customer.Controllers
 
             products.Add(product);
             HttpContext.Session.Set("products", products);
-            return View(product);
+            if (HttpContext.Session.Get<bool>("IsFromDetails") == true)
+                return RedirectToAction(nameof(Detail), new { id = id });
+            else
+                return RedirectToAction(nameof(Index));
 
         }
 
-        //GET Remove action methdo
+        [HttpPost]
+        public async Task<IActionResult> AddToWishlist(int? id)
+        {
+            List<Dto_Product> products;
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var product = _productManager.GetFullProductById(id);
+            if (product == null)
+            {
+                return NotFound();
+            }
+
+            products = HttpContext.Session.Get<List<Dto_Product>>("wishlist");
+            if (products == null)
+            {
+                products = new List<Dto_Product>();
+            }
+
+            await MakeViewData(product);
+
+            products.Add(product);
+            HttpContext.Session.Set("wishlist", products);
+            if (HttpContext.Session.Get<bool>("IsFromDetails") == true)
+                return RedirectToAction(nameof(Detail), new {id = id});
+            else
+                return RedirectToAction(nameof(Index));
+
+        }
+
+
         [ActionName("Remove")]
-        public async Task<IActionResult> RemoveToCart(int? id)
+        public IActionResult RemoveToCart(int? id)
         {
             List<Dto_Product> products = HttpContext.Session.Get<List<Dto_Product>>("products");
             if (products != null)
@@ -145,10 +172,13 @@ namespace OnlineShop.Areas.Customer.Controllers
                     HttpContext.Session.Set("products", products);
                 }
             }
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(Detail), new { id = id });
         }
 
-        // GET product Cart action method
+
+
+
+
         public IActionResult Cart()
         {
             List<Dto_Product> products = HttpContext.Session.Get<List<Dto_Product>>("products");
@@ -158,6 +188,19 @@ namespace OnlineShop.Areas.Customer.Controllers
             }
             return View(products);
         }
+
+        public IActionResult WishList()
+        {
+            List<Dto_Product> products = HttpContext.Session.Get<List<Dto_Product>>("wishlist");
+            if (products == null)
+            {
+                products = new List<Dto_Product>();
+            }
+            return View(products);
+        }
+
+
+
 
         private async Task MakeViewData(Dto_Product product)
         {

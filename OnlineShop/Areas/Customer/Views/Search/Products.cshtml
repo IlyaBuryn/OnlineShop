@@ -1,0 +1,22 @@
+﻿@using BusinessLogic.DtoModels
+@using X.PagedList.Mvc.Core
+@using X.PagedList.Web.Common
+@model X.PagedList.IPagedList<Dto_Product>
+@{
+    ViewData["Title"] = "Products";
+}
+<link rel="stylesheet" type="text/css" href="~/css/newgroup.css"/>
+<br />
+
+<div class="container mt-5 mb-5">
+    <div class="d-flex justify-content-center row">
+        <div class="col-md-10">
+            @foreach (var item in Model)
+            {
+                <partial name="_FlatItemPartial" model="@item"/>
+            
+            }
+            @Html.PagedListPager(Model, c => Href("~/Customer/Search/Products?page=" + c), PagedListRenderOptions.Classic)
+        </div>
+    </div>
+</div>

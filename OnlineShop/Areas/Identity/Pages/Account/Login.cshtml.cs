@@ -14,6 +14,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Http;
 using BusinessLogic.Interfaces;
 using BusinessLogic.Services;
+using BusinessLogic.DtoModels;
 
 namespace OnlineShop.Areas.Identity.Pages.Account
 {

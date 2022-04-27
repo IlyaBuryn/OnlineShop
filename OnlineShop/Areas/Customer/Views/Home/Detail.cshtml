@@ -12,6 +12,8 @@
 	var _rateof3 = ViewData["rateof3"] as int[];
 	var _rateof2 = ViewData["rateof2"] as int[];
 	var _rateof1 = ViewData["rateof1"] as int[];
+
+	HttpContextAccessor.HttpContext.Session.Set("IsFromDetails", true);
 }
 
 @using BusinessLogic.Services
@@ -107,7 +109,7 @@
 
 					</div>
 					<div>
-						<h3 class="product-price">$@Model.Price <del class="product-old-price">$@(Model.Price + (Model.Price * 0.1m))</del></h3>
+						<h3 class="product-price">$@Model.Price <del class="product-old-price">$@Math.Round(Model.Price + Model.Price * 0.1m, 2)</del></h3>
 						@if (@Model.IsAvailable)
 						{
 							<span class="product-available">In Stock</span>
@@ -162,7 +164,8 @@
 							}
 							else
 							{
-								<form asp-action="Detail" method="post" enctype="multipart/form-data">
+								<form asp-action="AddToCart" method="post" enctype="multipart/form-data">
+									<input type="hidden" name="id" value="@Model.Id"/>
 									<button style="width:300px;margin-top:15px" type="submit" class="add-to-cart-btn form-control">
 										<i class="fa-solid fa-shopping-cart"></i>
 										Add to Cart
@@ -178,14 +181,21 @@
 
 
 					<ul class="product-btns">
-						<li><a href="#"><i class="fa-solid fa-heart-o"></i> add to wishlist</a></li>
-						<li><a href="#"><i class="fa-solid fa-exchange"></i> add to compare</a></li>
+						<li>
+						@using(Html.BeginForm("AddToWishlist","Home"))
+						{
+							<input type="hidden" name="id" value="@Model.Id"/>
+							<button class="btn-link"><i class="fa-solid fa-heart-o"></i> add to wishlist</button>
+						}
+						</li>
+						@*<li><a href="#"><i class="fa-solid fa-heart-o"></i> add to wishlist</a></li>
+						<li><a href="#"><i class="fa-solid fa-exchange"></i> add to compare</a></li>*@
 					</ul>
 
 					<ul class="product-links">
 						<li>Category:</li>
-						<li><a href="#">@Model.ProductTypes</a></li>
-						<li><a href="#">@Model.SpecialTag</a></li>
+						<li><a href="#">@Model.ProductTypes.ProductType</a></li>
+						<li><a href="#">@Model.SpecialTag.Name</a></li>
 					</ul>
 				</div>
 			</div>
@@ -196,9 +206,9 @@
 				<div id="product-tab">
 					<!-- product tab nav -->
 					<ul class="tab-nav">
-						<li class="active"><a data-toggle="tab" href="#tab1" onclick={fade1()}>Description</a></li>
-						<li class=""><a data-toggle="tab" href="#tab2" onclick={fade2()}>Details</a></li>
-						<li class=""><a data-toggle="tab" href="#tab3" onclick={fade3()}>Reviews</a></li>
+						<li id="a1" class="active"><a data-toggle="tab" href="#tab1" onclick={fade1()}>Description</a></li>
+						<li id="a2" class=""><a data-toggle="tab" href="#tab2" onclick={fade2()}>Details</a></li>
+						<li id="a3" class=""><a data-toggle="tab" href="#tab3" onclick={fade3()}>Reviews</a></li>
 					</ul>
 					<!-- /product tab nav -->
 
@@ -438,86 +448,6 @@
 </div>
 <!-- /SECTION -->
 
-@*<br />
-
-<h2 class="text-info">Product Details</h2>
-<form asp-action="Detail" method="post" enctype="multipart/form-data">
-    <div class="p-4 rounded border row">
-        <div asp-validation-summary="ModelOnly" class="text-danger">
-
-        </div>
-        <div class="col-8">
-            <div class="form-group row">
-                <div class="col-4">
-                    <label asp-for="Name"></label>
-                </div>
-                <div class="col-8">
-                    <input type="hidden" asp-for="Id" />
-                    <input asp-for="Name" readonly="readonly" class="form-control" />
-                </div>
-                <span asp-validation-for="Name" class="text-danger"></span>
-            </div>
-            <div class="form-group row">
-                <div class="col-4">
-                    <label asp-for="Price"></label>
-                </div>
-                <div class="col-8">
-                    <input asp-for="Price" readonly="readonly" class="form-control" />
-                </div>
-                <span asp-validation-for="Price" class="text-danger"></span>
-            </div>
-            <div class="form-group row">
-                <div class="col-4">
-                    <label asp-for="ProductTypeId"></label>
-                </div>
-                <div class="col-8">
-                    <input asp-for="ProductTypes.ProductType" asp-items="ViewBag.productTypeId" readonly="readonly" class="form-control" />
-                </div>
-                <span asp-validation-for="ProductTypeId" class="text-danger"></span>
-            </div>
-
-            <div class="form-group row">
-                <div class="col-4">
-
-                </div>
-                <div class="col-8">
-                    @if (product != null)
-                    {
-                        <button type="submit" class="btn btn-danger form-control" asp-action="Remove" asp-route-id="@Model.Id">Remove to Cart</button>
-                    }
-                    else
-                    {
-                        <input type="submit" class="btn btn-info form-control" value="Add to Cart" />
-                    }
-                    
-                </div>
-
-            </div>
-            <div class="form-group">
-                <a asp-action="Index" class="btn btn-success">Back to List</a>
-            </div>
-        </div>
-        <div class="col-1"></div>
-        <div class="col-3">
-            <img src="~/@Model.Image" width="250px" height="250px" style="border-radius: 5px;border: 1px solid #efefef"/>
-            @if (Model.IsAvailable)
-            {
-                <img style="margin-top:15px" src="~/Images/Available.png" width="250px" height="50px"/>
-            }
-            else
-            {
-                <img style="margin-top:15px" src="~/Images/Out.png" width="250px" height="50px"/>
-            }
-
-        </div>
-
-    </div>
-</form>
-
-<br /><br />
-
-
-*@
 
 @section Scripts{
     @{ 

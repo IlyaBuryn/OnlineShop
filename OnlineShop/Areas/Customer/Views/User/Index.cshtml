@@ -1,5 +1,5 @@
-﻿﻿@using BusinessLogic.DtoModels;
-@model IEnumerable<Dto_ApplicationUser>
+﻿@using Microsoft.AspNetCore.Identity
+@model IEnumerable<IdentityUser>
 @{
     ViewData["Title"] = "Index";
 }
@@ -31,7 +31,7 @@
         @foreach (var item in Model)
         {
     <tr>
-        <td>@item.FirstName @item.LastName</td>
+        @*<td>@item.FirstName @item.LastName</td>*@
         <td>@item.UserName</td>
         @if (item.LockoutEnd > DateTime.Now && item.LockoutEnd != null)
         {

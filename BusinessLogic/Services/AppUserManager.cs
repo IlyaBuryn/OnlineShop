@@ -1,64 +1,53 @@
-﻿using BusinessLogic.DtoModels;
-using BusinessLogic.Interfaces;
-using BusinessLogic.Maps;
+﻿using BusinessLogic.Interfaces;
 using DataAccessLayer.Data;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace BusinessLogic.Services
 {
     public class AppUserManager : IApplicationUserManager
     {
         private readonly ApplicationDbContext _context;
+
         public AppUserManager(ApplicationDbContext context)
         {
             _context = context;
         }
-        public List<Dto_ApplicationUser> GetAllAppUsers()
+
+        public IEnumerable<IdentityUser> GetAllAppUsers()
         {
-            var items = _context.ApplicationUsers.ToList();
-            return UserRoleMapper.CastAppUserModelToDto(items);
+            var users = _context.Users.AsNoTracking().ToList();
+            return users;
         }
 
-        public Dto_ApplicationUser GetById(string id)
+        public IdentityUser GetById(string id)
         {
-            var item = _context.ApplicationUsers.FirstOrDefault(c => c.Id == id);
-            return UserRoleMapper.CastAppUserModelToDto(item);
+            var item = _context.Users.AsNoTracking().FirstOrDefault(c => c.Id == id);
+            return item;
         }
 
-        public int UpdateAppUser(Dto_ApplicationUser applicationUser)
+        public int UpdateAppUser(IdentityUser applicationUser)
         {
-            _context.ApplicationUsers.Update(UserRoleMapper.CastDtoToAppUserModel(applicationUser));
+            _context.Users.Update(applicationUser);
             return _context.SaveChanges();
         }
 
-        public int RemoveAppUser(Dto_ApplicationUser applicationUser)
+        public int CreateAppUser(IdentityUser applicationUser)
         {
-            _context.ApplicationUsers.Remove(UserRoleMapper.CastDtoToAppUserModel(applicationUser));
+            _context.Users.Add(applicationUser);
             return _context.SaveChanges();
         }
 
-        public Dto_ApplicationUser GetUserInfo(string inputEmail)
+        public int RemoveAppUser(IdentityUser applicationUser)
         {
-            var item = _context.ApplicationUsers.FirstOrDefault(c => c.UserName.ToLower() == inputEmail.ToLower());
-            return new Dto_ApplicationUser()
-            {
-                AccessFailedCount = item.AccessFailedCount,
-                ConcurrencyStamp = item.ConcurrencyStamp,
-                Email = item.Email,
-                EmailConfirmed = item.EmailConfirmed,
-                FirstName = item.FirstName,
-                Id = item.Id,
-                LastName = item.LastName,
-                LockoutEnabled = item.LockoutEnabled,
-                LockoutEnd = item.LockoutEnd,
-                NormalizedEmail = item.NormalizedEmail,
-                NormalizedUserName = item.NormalizedUserName,
-                PasswordHash = item.PasswordHash,
-                PhoneNumber = item.PhoneNumber,
-                PhoneNumberConfirmed = item.PhoneNumberConfirmed,
-                SecurityStamp = item.SecurityStamp,
-                TwoFactorEnabled = item.TwoFactorEnabled,
-                UserName = item.UserName
-            };
+            _context.Users.Remove(applicationUser);
+            return _context.SaveChanges();
+        }
+
+        public IdentityUser GetUserInfo(string inputEmail)
+        {
+            var item = _context.Users.AsNoTracking().FirstOrDefault(c => c.UserName.ToLower() == inputEmail.ToLower());
+            return item;
         }
     }
 }

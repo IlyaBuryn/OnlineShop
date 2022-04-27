@@ -1,3 +1,4 @@
+using BusinessLogic.DtoModels;
 using BusinessLogic.Interfaces;
 using BusinessLogic.Services;
 using DataAccessLayer.Data;
@@ -7,6 +8,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -39,15 +41,20 @@ namespace OnlineShop
             });
 
 
-            services.AddMvc();/*.SetCompatibilityVersion(CompatibilityVersion.Version_3_0);*/
 
+            services.AddMvc();
 
-            services.AddIdentity<IdentityUser, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = true)
-                .AddDefaultUI()
-                .AddEntityFrameworkStores<ApplicationDbContext>();
+            services.AddDbContext<ApplicationDbContext>(options =>
+                options.UseSqlServer(
+                    Configuration.GetConnectionString("DefaultConnection")));
+
+            services.AddIdentity<IdentityUser, IdentityRole>(options => options.User.RequireUniqueEmail = false)
+                .AddEntityFrameworkStores<ApplicationDbContext>()
+                .AddDefaultTokenProviders();
 
             services.AddScoped<IDescriptionRepository, MongoDescriptionRepository>();
             services.AddScoped<IReviewRepository, MongoReviewRepository>();
+            services.AddScoped<IUserRoleManager, UserRoleManager>();
 
             services.AddScoped<IProductManager, ProductManager>();
             services.AddScoped<IApplicationUserManager, AppUserManager>();
@@ -56,11 +63,6 @@ namespace OnlineShop
             services.AddScoped<IProductSpecManager, ProductSpecManager>();
             services.AddScoped<IProductTypesManager, ProductTypesManager>();
             services.AddScoped<ISpecialTagManager, SpecialTagManager>();
-            services.AddScoped<IUserRoleManager, UserRoleManager>();
-
-            services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlServer(
-                    Configuration.GetConnectionString("DefaultConnection")));
 
             services.AddControllersWithViews();
             services.AddRazorPages();

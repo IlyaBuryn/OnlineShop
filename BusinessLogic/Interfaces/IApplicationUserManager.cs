@@ -1,4 +1,5 @@
 ﻿using BusinessLogic.DtoModels;
+using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,10 +10,11 @@ namespace BusinessLogic.Interfaces
 {
     public interface IApplicationUserManager
     {
-        List<Dto_ApplicationUser> GetAllAppUsers();
-        Dto_ApplicationUser GetById(string id);
-        int UpdateAppUser(Dto_ApplicationUser applicationUser);
-        int RemoveAppUser(Dto_ApplicationUser applicationUser);
-        Dto_ApplicationUser GetUserInfo(string inputEmail);
+        IEnumerable<IdentityUser> GetAllAppUsers();
+        IdentityUser GetById(string id);
+        int UpdateAppUser(IdentityUser applicationUser);
+        int RemoveAppUser(IdentityUser applicationUser);
+        int CreateAppUser(IdentityUser applicationUser);
+        IdentityUser GetUserInfo(string inputEmail);
     }
 }

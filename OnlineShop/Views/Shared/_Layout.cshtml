@@ -7,13 +7,21 @@
 @inject IHttpContextAccessor HttpContextAccessor
 @{
     var userRole = HttpContextAccessor.HttpContext.Session.GetString("roleName");
-    int count = 0;
+    int cartCount = 0;
+    int wishCount = 0;
     List<Dto_Product> products = HttpContextAccessor.HttpContext.Session.Get<List<Dto_Product>>("products");
     if (products == null)
     {
         products = new List<Dto_Product>();
     }
-    count = products.Count();
+    cartCount = products.Count();
+
+    List<Dto_Product> wishlist = HttpContextAccessor.HttpContext.Session.Get<List<Dto_Product>>("wishlist");
+    if (wishlist == null)
+    {
+        wishlist = new List<Dto_Product>();
+    }
+    wishCount = wishlist.Count();
 }
 
 <!DOCTYPE html>
@@ -24,7 +32,10 @@
     <title>@ViewData["Title"] - OnlineShop</title>
 
 	<!-- Bootstrap -->
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/lib/bootstrap-5.0.2-dist/css/bootstrap.css" />
+    <link rel="stylesheet" href="~/lib/bootstrap-5.0.2-dist/css/bootstrap-grid.css" />
+    <link rel="stylesheet" href="~/lib/bootstrap-5.0.2-dist/css/bootstrap-reboot.css" />
+    <link rel="stylesheet" href="~/lib/bootstrap-5.0.2-dist/css/bootstrap-utilities.css" />
     <link rel="stylesheet" href="~/css/site.css" />
 
 	<link href="https://fonts.googleapis.com/css?family=Poppins:400,700&display=swap" rel="stylesheet">
@@ -43,6 +54,7 @@
     <link rel="stylesheet" type="text/css" href="~/css/stylenew.css"/>
     
     <link rel="stylesheet" href="~/lib/font-awesome/css/all.css"/>
+
     
     <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/css/alertify.min.css"/>
     <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/css/themes/bootstrap.min.css"/>
@@ -62,32 +74,6 @@
 
 
 <body>
-    @*
-                    <partial name="_LoginPartial" />
-                    <ul class="navbar-nav flex-grow-1">
-                        @if (userRole == "Admin")
-                        {
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="Admin" asp-controller="ProductTypes" asp-action="Index">Product Types</a>
-                            </li>
-
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="Admin" asp-controller="SpecialTag" asp-action="Index">Tag Name</a>
-                            </li>
-
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="Admin" asp-controller="Product" asp-action="Index">Product</a>
-                            </li>
-                        }
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="Customer" asp-controller="Home" asp-action="Cart">
-                                <i class="fas fa-cart-arrow-down"></i>
-                                (@count)
-                            </a>
-                        </li>
-                    </ul>
-    *@
-
     <header class="header_section">
         <div class="header_top">
             <div class="container-fluid">
@@ -117,10 +103,20 @@
                         
                     </form>
                     <!-- --- -->
-                    <button asp-area="Customer" asp-controller="Home" asp-action="Cart" type="submit" class="btn btn-primary">
-                        <i class="fa-solid fa-cart-shopping" aria-hidden="true"></i>
-                        Your Cart <span class="badge badge-light">@count</span>
-                    </button>
+                    <form asp-area="Customer" asp-controller="Home" asp-action="Cart">
+                        <button style="color: white" type="submit" class="btn btn-link">
+                            <i class="fa-solid fa-cart-shopping" aria-hidden="true"></i>
+                            Your Cart<span style="margin-left: 5px" class="badge bg-secondary">@cartCount</span>
+                        </button>
+                    </form>
+                    <!-- --- -->
+                    <form asp-area="Customer" asp-controller="Home" asp-action="Wishlist">
+                        <button style="color: white" type="submit" class="btn btn-link">
+                            <i class="fa-solid fa-heart-o" aria-hidden="true"></i>
+                            Your Wishlist<span style="margin-left: 5px" class="badge bg-secondary">@wishCount</span>
+                        </button>
+                    </form>
+                    <!-- --- -->
 
                     <div class="user_option_box">
                         <partial name="_LoginPartial" />
@@ -155,7 +151,7 @@
                                 </li>
 
                                 <li class="nav-item">
-                                    <a class="nav-link" asp-area="Admin" asp-controller="Product" asp-action="Index">Product</a>
+                                    <a class="nav-link" asp-area="Admin" asp-controller="Product" asp-action="Index">Products info</a>
                                 </li>
                             }
                             <li class="nav-item active">
@@ -165,7 +161,7 @@
                                 <a class="nav-link" href="about.html"> About</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" href="product.html">Products</a>
+                                 <a class="nav-link" asp-area="Customer" asp-controller="Search" asp-action="Products">Products</a>
                             </li>
                         </ul>
                     </div>
@@ -192,7 +188,8 @@
     @*<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>*@
 
 	<script src="~/js/jquery.min.js"></script>
-	<script src="~/js/bootstrap.min.js"></script>
+    <script src="~/lib/bootstrap-5.0.2-dist/js/bootstrap.bundele.min.js"></script>
+    @*<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>*@
 	<script src="~/js/slick.min.js"></script>
 	<script src="~/js/nouislider.min.js"></script>
 	<script src="~/js/jquery.zoom.min.js"></script>

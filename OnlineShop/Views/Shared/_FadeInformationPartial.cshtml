@@ -1,22 +1,46 @@
 ﻿<script>
     function fade1() {
         console.log('fade1');
+        $('#a1').addClass('active');
+        $('#a2').removeClass('active');
+        $('#a3').removeClass('active');
+
         $('#tab1').removeClass('fade');
         $('#tab2').addClass('fade');
         $('#tab3').addClass('fade');
+
+        $('#tab1').addClass('active');
+        $('#tab2').removeClass('active');
+        $('#tab3').removeClass('active');
     }
 
     function fade2() {
         console.log('fade2');
+        $('#a1').removeClass('active');
+        $('#a2').addClass('active');
+        $('#a3').removeClass('active');
+
         $('#tab1').addClass('fade');
         $('#tab2').removeClass('fade');
         $('#tab3').addClass('fade');
+
+        $('#tab1').removeClass('active');
+        $('#tab2').addClass('active');
+        $('#tab3').removeClass('active');
     }
 
     function fade3() {
         console.log('fade3');
+        $('#a1').removeClass('active');
+        $('#a2').removeClass('active');
+        $('#a3').addClass('active');
+
         $('#tab1').addClass('fade');
         $('#tab2').addClass('fade');
         $('#tab3').removeClass('fade');
+
+        $('#tab1').removeClass('active');
+        $('#tab2').removeClass('active');
+        $('#tab3').addClass('active');
     }
 </script>
