@@ -52,6 +52,11 @@ namespace OnlineShop
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
 
+            services.AddScoped<ICustomGenericService<Dto_PaymentType>, PaymentManager>();
+            services.AddScoped<ICustomGenericService<Dto_DeliveryType>, DeliveryTypeManager>();
+            services.AddScoped<ICustomGenericServiceAsync<Dto_DeliveryDetails>, DeliveryManager>();
+            services.AddScoped<ICustomGenericServiceAsyncMembers<Dto_DeliveryStatus>, DeliveryStatusManager>();
+
             services.AddScoped<IDescriptionRepository, MongoDescriptionRepository>();
             services.AddScoped<IReviewRepository, MongoReviewRepository>();
             services.AddScoped<IUserRoleManager, UserRoleManager>();
@@ -63,6 +68,8 @@ namespace OnlineShop
             services.AddScoped<IProductSpecManager, ProductSpecManager>();
             services.AddScoped<IProductTypesManager, ProductTypesManager>();
             services.AddScoped<ISpecialTagManager, SpecialTagManager>();
+
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
             services.AddControllersWithViews();
             services.AddRazorPages();
@@ -81,11 +88,11 @@ namespace OnlineShop
                 
                 app.UseHsts();
             }
+            app.UseSession();
+
             app.UseHttpsRedirection();
 
             app.UseStaticFiles();
-            
-            app.UseSession();
 
             app.UseRouting();
 
@@ -96,7 +103,18 @@ namespace OnlineShop
             {
                 endpoints.MapControllerRoute(
                     name: "areas",
-                    pattern: "{area=Customer}/{controller=Home}/{action=Index}/{id?}");
+                    pattern: "{Area=Customer}/{controller=Home}/{action=Index}/{id?}");
+
+                endpoints.MapAreaControllerRoute(
+                    name: "Delivery",
+                    areaName: "Delivery",
+                    pattern: "Delivery/{controller=Delivery}/{action=Index}/{id?}");
+
+                endpoints.MapAreaControllerRoute(
+                    name: "Admin",
+                    areaName: "Admin",
+                    pattern: "Admin/{controller=Products}/{action=Index}/{id?}");
+
                 endpoints.MapRazorPages();
             });
 

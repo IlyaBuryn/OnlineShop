@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 namespace OnlineShop.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    [Authorize]
+    [Authorize(Roles = "Admin")]
     public class ProductController : Controller
     {
         private readonly IProductManager _productManager;
@@ -59,6 +59,9 @@ namespace OnlineShop.Areas.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> Create(Dto_Product product, IFormFile image)
         {
+            ModelState.Remove("Image");
+            ModelState.Remove("ProductTypes");
+            ModelState.Remove("SpecialTag");
             if (ModelState.IsValid)
             {
                 var searchProduct = _productManager.GetProductByName(product.Name);
@@ -182,7 +185,7 @@ namespace OnlineShop.Areas.Admin.Controllers
             {
                 return NotFound();
             }
-            _productManager.RemoveProduct(product);
+            await _productManager.RemoveProduct(product);
             TempData["delete"] = "Product has been deleted";
             return RedirectToAction(nameof(Index));
         }

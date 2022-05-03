@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace BusinessLogic.DtoModels
 {
@@ -8,6 +9,7 @@ namespace BusinessLogic.DtoModels
         {
             OrderDetails = new List<Dto_OrderDetails>();
         }
+
         public int Id { get; set; }
 
         [Display(Name = "Order Number")]
@@ -27,7 +29,7 @@ namespace BusinessLogic.DtoModels
         [Required]
         public string Address { get; set; }
         public DateTime OrderDate { get; set; }
-
         public virtual List<Dto_OrderDetails> OrderDetails { get; set; }
+        public virtual Dto_DeliveryDetails DeliveryDetails { get; set; }
     }
 }

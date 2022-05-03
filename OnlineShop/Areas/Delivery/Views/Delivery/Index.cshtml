@@ -1,0 +1,85 @@
+﻿@using BusinessLogic.DtoModels;
+@model IEnumerable<Dto_Order>
+@{
+    ViewData["Title"] = "Free Orders";
+    string orderDetails = "";
+
+}
+
+<br />
+<div class="row">
+    <div class="col-6">
+        <h2 class="text-info">Order List</h2>
+    </div>
+</div>
+
+<br />
+
+<table class="table align-middle mb-0 bg-white">
+    <thead class="bg-light">
+        <tr>
+            <th>@Html.DisplayNameFor(c => c.OrderNo)</th>
+            <th>Customer</th>
+            <th>@Html.DisplayNameFor(c => c.PhoneNo)</th>
+            <th>@Html.DisplayNameFor(c => c.OrderDate)</th>
+            <th>@Html.DisplayNameFor(c => c.DeliveryDetails.DeliveryType.Name)</th>
+            <th>@Html.DisplayNameFor(c => c.OrderDetails)</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.OrderNo</td>
+                <td>
+                    <div class="d-flex align-content-center">
+                        <div class="ms-3">
+                            <p class="fw-bold mb-1">@item.Name</p>
+                            <p class="text-muted mb-0">@item.Address</p>
+                        </div>
+                    </div>
+                </td>
+                <td>@item.PhoneNo</td>
+                <td>@item.OrderDate</td>
+                <td>@item.DeliveryDetails.DeliveryType.Name</td>
+                <td>
+                @foreach (var prod in Calculation.ViewToDictionary(item.OrderDetails))
+                {
+                    <p style="margin-bottom: 0rem;">(@prod.Value) @prod.Key.Name</p>
+                }
+                </td>
+                <td>
+                    <form asp-action="Details" asp-route-id="@item.Id" method="get">
+                        <button  type="submit" class="btn btn-link btn-sm btn-rounded border">
+                            Details
+                        </button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@section scripts{
+    <script src="//cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/alertify.min.js"></script>
+    
+    <script type="text/javascript">
+        
+        $(function(){
+            var save = '@TempData["save"]'
+            if(save!='') {
+                alertify.success(save);
+            }
+            var edit = '@TempData["edit"]'
+            if(edit!='') {
+                alertify.success(edit);
+            }
+            var del = '@TempData["delete"]'
+            if (del!='') {
+                alertify.error(del);
+            }
+        })
+    </script>
+}

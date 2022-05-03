@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DataAccessLayer.Models
 {
@@ -29,6 +30,7 @@ namespace DataAccessLayer.Models
         public string Address { get; set; }
         public DateTime OrderDate { get; set; }
         public virtual List<OrderDetails> OrderDetails { get; set; }
-        public DeliveryDetails DeliveryDetails { get; set; }
+        public virtual DeliveryDetails DeliveryDetails { get; set; }
+
     }
 }

@@ -1,52 +1,74 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using BusinessLogic.DtoModels;
+using BusinessLogic.Interfaces;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 
 namespace OnlineShop.Areas.Delivery.Controllers
 {
     [Area("Delivery")]
+    [Authorize(Roles = "Delivery")]
     public class DeliveryController : Controller
     {
-
-        public DeliveryController()
+        private readonly IOrderManager _orderManager;
+        public DeliveryController(IOrderManager orderManager)
         {
-
+            _orderManager = orderManager;
         }
 
-
+        // Get general/major info about delivery person ond current orders/
         public IActionResult Index()
         {
-            return View();
+            return View(_orderManager.GetFreeForDeliveryOrders());
         }
 
-        public async Task<IActionResult> StartDelivery()
+        [HttpGet]
+        public async Task<IActionResult> TakeOrder(int? id)
         {
             return View();
         }
 
         [HttpPost]
-        public async Task<IActionResult> StartDelivery(int? id)
+        public async Task<IActionResult> TakeOrder(Dto_Order anOrder)
         {
             return View();
         }
 
-        public async Task<IActionResult> Edit()
-        {
-            return View();
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> Edit(int? id)
-        {
-            return View();
-        }
-
-        public async Task<IActionResult> Details()
-        {
-            return View();
-        }
-
-        [HttpPost]
+        [HttpGet]
         public async Task<IActionResult> Details(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+            var anOrder = _orderManager.GetOrderById((int)id);
+            if (anOrder == null)
+            {
+                return NotFound();
+            }
+            return View(anOrder);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Details(Dto_Order anOrder)
+        {
+            return View();
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> MyOrders()
+        {
+            return View();
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ChangeStatus(int? id)
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ChangeStatus(Dto_Order anOrder)
         {
             return View();
         }

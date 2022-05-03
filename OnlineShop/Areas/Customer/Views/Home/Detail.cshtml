@@ -1,11 +1,12 @@
 ﻿@model BusinessLogic.DtoModels.Dto_Product
 @{
 	ViewData["Title"] = "Details";
-	var _reviews = ViewData["reviews"] as Dictionary<string, Dictionary<string, string>>;
+
+	var _reviews = HttpContextAccessor.HttpContext.Session.Get<Dictionary<string, Dictionary<string, string>>>("reviews");
+	var _specs = HttpContextAccessor.HttpContext.Session.Get<Dictionary<string, Dictionary<string, string>>>("specs");
+
 	var _rate = ViewData["reviewRate"] as double?;
-	var _chars = ViewData["productChars"] as Dictionary<string, Dictionary<string, string>>;
 	var _desc = ViewData["productDesc"] as string[];
-	var _colors = ViewData["colors"] as List<string>;
 
 	var _rateof5 = ViewData["rateof5"] as int[];
 	var _rateof4 = ViewData["rateof4"] as int[];
@@ -123,23 +124,7 @@
 					{
 						<p>@(_desc[0])...<a class="review-link" href="#">More description</a></p>
 					}
-					@if (_colors != null)
-					{
-						@if (_colors.Count() > 1)
-						{
-							<div class="product-options">
-								<label>
-									Color
-									<select class="input-select">
-										@for (int i = 0; i < _colors.Count(); i++)
-										{
-											<option value="@i">@_colors[i]</option>
-										}
-									</select>
-								</label>
-							</div>
-						}
-					}
+					
 
 					<div class="add-to-cart form-group">
 						<div class="qty-label">
@@ -155,7 +140,7 @@
 						{
 							@if (product != null) 
 							{
-								<form asp-action="Remove" asp-route-id="@Model.Id" enctype="multipart/form-data">
+								<form asp-action="Remove" asp-controller="Order" asp-route-id="@Model.Id" enctype="multipart/form-data">
 									<button style="width:300px;margin-top:15px" type="submit" class="add-to-cart-btn form-control">
 										<i class="fa-solid fa-xmark"></i>
 										Remove from Cart
@@ -164,17 +149,22 @@
 							}
 							else
 							{
-								<form asp-action="AddToCart" method="post" enctype="multipart/form-data">
-									<input type="hidden" name="id" value="@Model.Id"/>
-									<button style="width:300px;margin-top:15px" type="submit" class="add-to-cart-btn form-control">
-										<i class="fa-solid fa-shopping-cart"></i>
-										Add to Cart
-									</button>
-								</form>
+
+								<button style="width:300px;margin-top:15px" onclick="addToCart(@Model.Id)" type="submit" class="add-to-cart-btn form-control">
+									<i class="fa-solid fa-shopping-cart"></i>
+									Add to Cart
+								</button>
 							}
 						}
 					</div>
 
+					<div class="add-to-cart form-group">
+
+						<button onclick="addToWishlist(@Model.Id)" style="width:300px; border-color: #D10024; color: #000; background-color: #FFF; margin-top:15px" type="submit" class="add-to-cart-btn form-control">
+							<i class="fa-solid fa-heart"></i>
+							Add to wishlist
+						</button>
+					</div>
 
 
 
@@ -182,14 +172,8 @@
 
 					<ul class="product-btns">
 						<li>
-						@using(Html.BeginForm("AddToWishlist","Home"))
-						{
-							<input type="hidden" name="id" value="@Model.Id"/>
-							<button class="btn-link"><i class="fa-solid fa-heart-o"></i> add to wishlist</button>
-						}
+							<a class="btn-link" onclick="addToWishlist(@Model.Id)"><i class="fa-solid fa-heart-o"></i> add to wishlist</a>
 						</li>
-						@*<li><a href="#"><i class="fa-solid fa-heart-o"></i> add to wishlist</a></li>
-						<li><a href="#"><i class="fa-solid fa-exchange"></i> add to compare</a></li>*@
 					</ul>
 
 					<ul class="product-links">
@@ -239,9 +223,9 @@
 						<div id="tab2" class="tab-pane fade in">
 							<div class="row">
 								<div class="col-md-12">
-								@if (_chars != null)
+								@if (_specs != null)
 								{
-									@foreach (var item in _chars)
+									@foreach (var item in _specs)
 									{
 										<h2>@item.Key</h2>
 										<table class="table border">       
@@ -376,7 +360,7 @@
 												{
 													<li>
 														<div class="review-heading">
-															<h5 class="name">@item.Value["UserId"]</h5>
+															<h5 class="name">@item.Value["Name"]</h5>
 															<p class="date">@item.Value["ReviewDate"]</p>
 															<div class="review-rating">
 																@for (int i = 0; i < int.Parse(@item.Value["Rate"]); i++)
@@ -399,13 +383,6 @@
 											{
 												
 											}
-										</ul>
-										<ul class="reviews-pagination"> <!-- TODO -->
-											<li class="active">1</li>
-											<li><a href="#">2</a></li>
-											<li><a href="#">3</a></li>
-											<li><a href="#">4</a></li>
-											<li><a href="#"><i class="fa fa-angle-right"></i></a></li>
 										</ul>
 									</div>
 								</div>
@@ -456,6 +433,39 @@
 		await Html.RenderPartialAsync("_FadeInformationPartial");
     }
 	<script>fade1()</script>
+	<script src="//cdn.jsdelivr.net/npm/alertifyjs@1.11.2/build/alertify.min.js"></script>
+	<script type="text/javascript">
+
+	function addToCart(num) {
+
+		console.log('Add to cart');
+		console.log(num)
+		$.ajax({
+			type: "POST",
+			url: "/Customer/Order/AddToCart",
+			data: {id: num},
+		});
+		var index = $('#cardBadge').text();
+		console.log(index);
+		$('#cardBadge').text(parseInt(index) + parseInt(1));
+        alertify.success('Added to cart');
+    }
+
+	function addToWishlist(num) {
+
+		console.log('Add to wishlist');
+		console.log(num)
+		$.ajax({
+			type: "POST",
+			url: "/Customer/Home/AddToWishlist",
+			data: {id: num},
+		});
+		var index = $('#wishlistBadge').text();
+		console.log(index);
+		$('#wishlistBadge').text(parseInt(index) + parseInt(1));
+        alertify.success('Added to wishlist');
+    }
+	</script>
 }
 
 

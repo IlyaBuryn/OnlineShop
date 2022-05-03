@@ -3,17 +3,26 @@
 @using OnlineShop.Utility
 @using X.PagedList.Mvc.Core
 @using X.PagedList.Web.Common
+
 @model OnlineShop.Areas.Customer.Models.HomeControllerIndexModel
+@inject IHttpContextAccessor HttpContextAccessor
+
+<link rel="stylesheet" type="text/css" href="~/css/styleproducts.css"/>
+
 @{
     ViewData["Title"] = "Home";
+
+	var products = HttpContextAccessor.HttpContext.Session.Get<List<Dto_Product>>("products");
+
+    if (products == null)
+    {
+        products=new List<Dto_Product>();
+    }
+
 	HttpContextAccessor.HttpContext.Session.Set("IsFromDetails", false);
 }
 
-@inject IHttpContextAccessor HttpContextAccessor
-@{
-
-}
-<br/><br/>
+<br/><br/><br/>
 
 <div>
 	<h3 class="text-info">Categories</h3>
@@ -70,27 +79,25 @@
 					</h4>
 
 					<div class="product-btns">
-						@using(Html.BeginForm("AddToWishlist", "Home", FormMethod.Post))
+						
+						@if (product.IsAvailable)
 						{
-							<input type="hidden" name="id" value="@product.Id"/>
-							<button class="add-to-wishlist"><i class="fa fa-heart-o"></i><span class="tooltipp">add to wishlist</span></button>
+							<button onclick="addToCart(@product.Id)" class="add-to-compare">
+								<i class="fas fa-cart-shopping"></i>
+								<span class="tooltipp">add to cart</span>
+							</button>
+							<input type="hidden" id="cartDataId" name="id" value="@product.Id"/>
 						}
-						@using(Html.BeginForm("AddToCart", "Home", FormMethod.Post))
-						{
-							<input type="hidden" name="id" value="@product.Id"/>
-							<button class="add-to-compare"><i class="fa fa-cart-shopping"></i><span class="tooltipp">add to cart</span></button>
-						}
-						@*<button class="quick-view"><i class="fa fa-eye"></i><span class="tooltipp">quick view</span></button>*@
+
+
+							<button onclick="addToWishlist(@product.Id)" class="add-to-wishlist">
+								<i class="fas fa-heart"></i>
+								<span class="tooltipp">add to wishlist</span>
+							</button>
+							<input type="hidden" id="wishlistDataId" name="id" value="@product.Id"/>
+
 					</div>
 				</div>
-				@*<div class="add-to-cart">
-					<form asp-controller="Home" asp-action="Detail" asp-route-id="@product.Id" method="post" enctype="multipart/form-data">
-						<button class="add-to-cart-btn">
-							<i class="fa fa-shopping-cart"></i>
-							Add to Cart
-						</button>
-					</form>
-				</div>*@
 			</div>
 			}
 		</div>
@@ -102,7 +109,53 @@
     @Html.PagedListPager(Model.Products, c => Href("~/Customer/Home/Index?page=" + c), PagedListRenderOptions.Classic)
 </div>
 
-
 @section Scripts{
+	<script src="//cdn.jsdelivr.net/npm/alertifyjs@1.11.2/build/alertify.min.js"></script>
+	<script type="text/javascript">
 
+	function addToCart(num) {
+
+		console.log('Add to cart');
+		console.log(num)
+		$.ajax({
+			type: "POST",
+			url: "/Customer/Order/AddToCart",
+			data: {id: num},
+		});
+		var index = $('#cartBadge').text();
+		console.log(index);
+		$('#cartBadge').text(parseInt(index) + parseInt(1));
+        alertify.success('Added to cart');
+    }
+
+	function addToWishlist(num) {
+
+		console.log('Add to wishlist');
+		console.log(num)
+		$.ajax({
+			type: "POST",
+			url: "/Customer/Home/AddToWishlist",
+			data: {id: num},
+		});
+		var index = $('#wishlistBadge').text();
+		console.log(index);
+		$('#wishlistBadge').text(parseInt(index) + parseInt(1));
+        alertify.success('Added to wishlist');
+    }
+        
+    $(function(){
+        var save = '@TempData["save"]'
+        if(save!='') {
+            alertify.success(save);
+        }
+        var edit = '@TempData["edit"]'
+        if(edit!='') {
+            alertify.success(edit);
+        }
+        var del = '@TempData["delete"]'
+        if (del!='') {
+            alertify.error(del);
+        }
+    })
+    </script>
 }
