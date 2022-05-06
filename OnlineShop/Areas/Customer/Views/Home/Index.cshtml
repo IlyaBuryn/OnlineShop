@@ -22,7 +22,7 @@
 	HttpContextAccessor.HttpContext.Session.Set("IsFromDetails", false);
 }
 
-<br/><br/><br/>
+<br/>
 
 <div>
 	<h3 class="text-info">Categories</h3>
@@ -30,14 +30,14 @@
 		<div class="card-group">
 			@foreach (var item in Model.ProductTypes)
 			{
-				<div class="card border border-white" style=" margin: 10px; width: 10rem;">
+				<div class="card shadow-0" style="background-color: #FFF; margin: 10px; width: 10rem;">
 					<img class="card-img-top" src="~/@item.Image" alt="~/noImage.png">
 					<div class="text-center">
 						<form asp-controller="Search" asp-action="SearchByProductType">
 							<input type="hidden" value="1" name="Page"/>
 							<input type="hidden" value="@item.Id" name="Id"/>
 
-							<button type="submit" class="card-title btn btn-link">
+							<button style="padding: 0;" type="submit" class="card-title btn btn-link">
 								@item.ProductType
 							</button>
 						</form>

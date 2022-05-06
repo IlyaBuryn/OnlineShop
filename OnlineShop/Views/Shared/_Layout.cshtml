@@ -87,30 +87,30 @@
 </head>
 
 
-<body>
+<body style="background-color: #fff">
     <header>
-        <nav id="sidebarMenu" class="collapse d-lg-block sidebar collapse bg-light">
-            <div class="position-sticky">
+        <nav id="sidebarMenu" class="collapse d-lg-block sidebar collapse bg-light" >
+            <div class="position-sticky" >
                 <div class="list-group list-group-flush mx-3 mt-4">
 
                     
 
                     <a asp-area="Customer" asp-controller="Home" asp-action="Index"
-                    class="list-group-item list-group-item-action py-2 ripple" aria-current="true">
+                    class="list-group-item bg-light list-group-item-action py-2 ripple" aria-current="true">
                         <i class="fas fa-chart-bar fa-fw me-3"></i>
                         <span>Home</span>
                     </a>
 
 
                     <a href="#"
-                    class="list-group-item list-group-item-action py-2 ripple" aria-current="false">
+                    class="list-group-item bg-light list-group-item-action py-2 ripple" aria-current="false">
                         <i class="fas fa-chart-bar fa-fw me-3"></i>
                         <span>About us</span>
                     </a>
 
 
                     <a asp-area="Customer" asp-controller="Search" asp-action="Products"
-                    class="list-group-item list-group-item-action py-2 ripple" aria-current="false">
+                    class="list-group-item bg-light list-group-item-action py-2 ripple" aria-current="false">
                         <i class="fas fa-chart-bar fa-fw me-3"></i>
                         <span>Product list</span>
                     </a>
@@ -120,27 +120,27 @@
                         <hr />
 
                         <a asp-area="Admin" asp-controller="ProductTypes" asp-action="Index" 
-                        class="list-group-item list-group-item-action py-2 ripple" aria-current="false">
+                        class="list-group-item bg-light list-group-item-action py-2 ripple" aria-current="false">
                         <i class="fas fa-bars fa-fw me-3"></i>
                         <span>Product types</span></a>
 
                         <a asp-area="Admin" asp-controller="SpecialTag" asp-action="Index" 
-                        class="list-group-item list-group-item-action py-2 ripple" aria-current="false">
+                        class="list-group-item bg-light list-group-item-action py-2 ripple" aria-current="false">
                         <i class="fas fa-bars fa-fw me-3"></i>
                         <span>Tags</span></a>
 
                         <a asp-area="Admin" asp-controller="Product" asp-action="Index" 
-                        class="list-group-item list-group-item-action py-2 ripple" aria-current="false">
+                        class="list-group-item bg-light list-group-item-action py-2 ripple" aria-current="false">
                         <i class="fas fa-box-archive fa-fw me-3"></i>
                         <span>Product types</span></a>
 
                         <a asp-area="Admin" asp-controller="Role" asp-action="Index" 
-                        class="list-group-item list-group-item-action py-2 ripple" aria-current="false">
+                        class="list-group-item bg-light list-group-item-action py-2 ripple" aria-current="false">
                         <i class="fas fa-chain fa-fw me-3"></i>
                         <span>Roles</span></a>
 
                         <a asp-area="Admin" asp-controller="Role" asp-action="AssignUserRole" 
-                        class="list-group-item list-group-item-action py-2 ripple" aria-current="false">
+                        class="list-group-item bg-light list-group-item-action py-2 ripple" aria-current="false">
                         <i class="fas fa-user fa-fw me-3"></i>
                         <span>Users</span></a>
                     }
@@ -149,32 +149,32 @@
                     {
                         <hr />
                         <a asp-area="Delivery" asp-controller="Delivery" asp-action="Index" 
-                        class="list-group-item list-group-item-action py-2 ripple" aria-current="false">
+                        class="list-group-item bg-light list-group-item-action py-2 ripple" aria-current="false">
                         <i class="fas fa-truck fa-fw me-3"></i>
                         <span>Delivery</span></a>
 
 
                         <a asp-area="Delivery" asp-controller="Delivery" asp-action="MyOrders" 
-                        class="list-group-item list-group-item-action py-2 ripple" aria-current="false">
+                        class="list-group-item bg-light list-group-item-action py-2 ripple" aria-current="false">
                         <i class="fas fa-address-book fa-fw me-3"></i>
                         <span>Delivered orders</span></a>
                     }
 
-                    @if (currentRole != "")
+                    @if (currentRole != null)
                     {
                         <hr />
                         <a asp-area="Identity" asp-page="/Account/Manage/Index"
-                        class="list-group-item list-group-item-action py-2 ripple" aria-current="false">
+                        class="list-group-item bg-light list-group-item-action py-2 ripple" aria-current="false">
                         <i class="fas fa-user fa-fw me-3"></i>
                         <span>My Proffile</span></a>
 
                         <a asp-area="Customer" asp-controller="Order" asp-action="MyOrders"
-                        class="list-group-item list-group-item-action py-2 ripple" aria-current="false">
+                        class="list-group-item bg-light list-group-item-action py-2 ripple" aria-current="false">
                         <i class="fas fa-clipboard-list fa-fw me-3"></i>
                         <span>My Orders</span></a>
                     }
 
-                    <p>@currentRole</p>
+                    <p class="list-group-item bg-light list-group-item-action py-2 ripple">Status - @currentRole</p>
                 </div>
             </div>
         </nav>
@@ -190,6 +190,13 @@
                     OnlineShop
                 </a>
 
+                <form asp-controller="Search" asp-action="SearchIndex" asp-area="Customer"
+                    class="d-none d-md-flex input-group w-auto my-auto">
+                    <input type="hidden" name="page" value="1"/>
+                    <input autocomplete="off" type="search" name="searchString" class="form-control rounded"
+                    placeholder='Search here...' style="margin-left: 40px; min-width: 350px;" />
+                    <span class="input-group-text border-0"><i class="fas fa-search"></i></span>
+                </form>
 
                 <ul class="navbar-nav ms-auto d-flex flex-row">
                     <li class="nav-item">

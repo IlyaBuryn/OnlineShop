@@ -9,6 +9,7 @@ using OnlineShop.Utility;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace OnlineShop.Areas.Customer.Controllers
@@ -29,6 +30,8 @@ namespace OnlineShop.Areas.Customer.Controllers
         private readonly IApplicationUserManager _userManager;
         private readonly IProductTypesManager _productTypesManager;
 
+        private readonly IHttpContextAccessor _httpContextAccessor;
+
         public OrderController(IProductManager productManager,
             IOrderManager orderManager,
             ICustomGenericService<Dto_PaymentType> paymentTypesManager,
@@ -38,7 +41,8 @@ namespace OnlineShop.Areas.Customer.Controllers
             IProductReviewManager productReviewManager,
             IProductSpecManager productSpecManager,
             IApplicationUserManager userManager,
-            IProductTypesManager productTypesManager)
+            IProductTypesManager productTypesManager,
+            IHttpContextAccessor httpContextAccessor)
         {
             _productManager = productManager;
             _orderManager = orderManager;
@@ -50,6 +54,7 @@ namespace OnlineShop.Areas.Customer.Controllers
             _userManager = userManager;
             _productTypesManager = productTypesManager;
             _deliveryStatusManager = deliveryStatusManager;
+            _httpContextAccessor = httpContextAccessor;
         }
         
         [HttpGet]
@@ -235,6 +240,45 @@ namespace OnlineShop.Areas.Customer.Controllers
             else
                 return RedirectToAction("Index", "Home");
 
+        }
+
+        [HttpGet]
+        public IActionResult MyOrders()
+        {
+            var email = _httpContextAccessor.HttpContext.User.Identity.Name;
+            if (email == null)
+            {
+                return RedirectToAction(nameof(NoOrders));
+            }
+            var result = _orderManager.GetOrdersByEmail(email);
+            if (result == null)
+            {
+                return RedirectToAction(nameof(NoOrders));
+            }
+            if (result.Count() == 0)
+            {
+                return RedirectToAction(nameof(NoOrders));
+            }
+            return View(result);
+        }
+
+        [HttpGet]
+        public IActionResult NoOrders()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Cancel(int id)
+        {
+            var model = _orderManager.GetOrderById((int)id);
+            if (model == null)
+            {
+                return NotFound();
+            }
+            await _orderManager.DeleteOrder(model);
+            TempData["save"] = "The order was deleted successfully";
+            return RedirectToAction(nameof(MyOrders));
         }
     }
 }

@@ -11,5 +11,7 @@ namespace BusinessLogic.Interfaces
         Dto_Order GetOrderById(int id);
         Task AddOrderDetails(Dto_OrderDetails orderDetails);
         Task<int> UpdateOrder(Dto_Order order);
+        IEnumerable<Dto_Order> GetOrdersByEmail(string email);
+        Task DeleteOrder(Dto_Order order);
     }
 }
