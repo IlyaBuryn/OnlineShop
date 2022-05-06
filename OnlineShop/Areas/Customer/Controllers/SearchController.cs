@@ -39,9 +39,14 @@ namespace OnlineShop.Areas.Customer.Controllers
                 return NotFound();
             }
             ViewBag.SearchString = searchString;
-            return View(products.ToPagedList(page ?? 1, 1));
+            return View(products.ToPagedList(page ?? 1, 5));
         }
 
+        public async Task<IActionResult> Products(int? page)
+        {
+            var result = _productManager.GetFullProducts().ToPagedList(page ?? 1, 5);
+            return View(result);
+        }
 
         public async Task<IActionResult> SearchByProductType(int? page, int? id)
         {
@@ -56,7 +61,7 @@ namespace OnlineShop.Areas.Customer.Controllers
 
             string type = _productTypesManager.FindProductType(id).ProductType;
             ViewBag.TypeString = type ?? "Category";
-            return View(products.ToPagedList(page ?? 1, 1));
+            return View(products.ToPagedList(page ?? 1, 5));
 
         }
     }

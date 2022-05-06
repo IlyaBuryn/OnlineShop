@@ -1,81 +1,106 @@
 ﻿﻿@using BusinessLogic.DtoModels
+@using Microsoft.AspNetCore.Http
+@using OnlineShop.Utility
 @using X.PagedList.Mvc.Core
 @using X.PagedList.Web.Common
+
 @model OnlineShop.Areas.Customer.Models.HomeControllerIndexModel
+@inject IHttpContextAccessor HttpContextAccessor
+
+<link rel="stylesheet" type="text/css" href="~/css/styleproducts.css"/>
 
 @{
     ViewData["Title"] = "Home";
+
+	var products = HttpContextAccessor.HttpContext.Session.Get<List<Dto_Product>>("products");
+
+    if (products == null)
+    {
+        products=new List<Dto_Product>();
+    }
+
+	HttpContextAccessor.HttpContext.Session.Set("IsFromDetails", false);
 }
 
-<br/><br/>
+<br/>
 
 <div>
 	<h3 class="text-info">Categories</h3>
-	<div class="card-deck">
-		@foreach (var item in Model.ProductTypes)
-		{
-			<div class="card border border-white" style="width: 10rem;">
-				<img class="card-img-top" src="~/@item.Image" alt="~/noImage.png">
-				<div class="text-center">
-					<form asp-controller="Search" asp-action="SearchByProductType">
-                        <input type="hidden" value="1" name="Page"/>
-						<input type="hidden" value="@item.Id" name="Id"/>
+	<div class="col-md-12">
+		<div class="card-group">
+			@foreach (var item in Model.ProductTypes)
+			{
+				<div class="card shadow-0" style="background-color: #FFF; margin: 10px; width: 10rem;">
+					<img class="card-img-top" src="~/@item.Image" alt="~/noImage.png">
+					<div class="text-center">
+						<form asp-controller="Search" asp-action="SearchByProductType">
+							<input type="hidden" value="1" name="Page"/>
+							<input type="hidden" value="@item.Id" name="Id"/>
 
-						<button type="submit" class="card-title btn btn-link">
-							@item.ProductType
-						</button>
-                    </form>
+							<button style="padding: 0;" type="submit" class="card-title btn btn-link">
+								@item.ProductType
+							</button>
+						</form>
+					</div>
 				</div>
-			</div>
-		}
+			}
+		</div>
 	</div>
 	<br/><hr/><br />
 </div>
 
 
-<div class="col-md-12">
-	<div class="row">
-		@foreach(var product in Model.Products)
-		{
-		<div class="product" style="margin: 10px">
-			<div class="product-img">
-				<img src="~/@product.Image" style="height: 250px; width: 250px" alt="">
-			</div>
+<div>
+	<div class="col-md-12">
+		<div class="card-group">
+			@foreach(var product in Model.Products)
+			{
+			<div class="product" style="margin: 10px; width: 16rem;">
+				<div class="product-img">
+					<img src="~/@product.Image" style="height: 250px; width: 250px" alt="">
+				</div>
 
-			<div class="product-body">
-				<p class="product-category">
-					@product.ProductTypes.ProductType
-				</p>
+				<div class="product-body">
+					<p class="product-category">
+						@product.ProductTypes.ProductType
+					</p>
 
-				<h3 class="product-name">
-					<a asp-action="Detail" asp-controller="Home" asp-route-id="@product.Id">
-						@product.Name
-					</a>
-				</h3>
+					<h3 class="product-name">
+						<a asp-action="Detail" asp-controller="Home" asp-route-id="@product.Id">
+							@product.Name
+						</a>
+					</h3>
 
-				<h4 class="product-price">
-					$@product.Price 
-					<del class="product-old-price">
-						$@(product.Price + product.Price * 0.1m)
-					</del>
-				</h4>
+					<h4 class="product-price">
+						$@product.Price 
+						<del class="product-old-price">
+							$@Math.Round(product.Price + product.Price * 0.1m, 2)
+						</del>	
+					</h4>
 
-				<div class="product-btns">
-					<button class="add-to-wishlist"><i class="fa fa-heart-o"></i><span class="tooltipp">add to wishlist</span></button>
-					<button class="add-to-compare"><i class="fa fa-exchange"></i><span class="tooltipp">add to compare</span></button>
-					<button class="quick-view"><i class="fa fa-eye"></i><span class="tooltipp">quick view</span></button>
+					<div class="product-btns">
+						
+						@if (product.IsAvailable)
+						{
+							<button onclick="addToCart(@product.Id)" class="add-to-compare">
+								<i class="fas fa-cart-shopping"></i>
+								<span class="tooltipp">add to cart</span>
+							</button>
+							<input type="hidden" id="cartDataId" name="id" value="@product.Id"/>
+						}
+
+
+							<button onclick="addToWishlist(@product.Id)" class="add-to-wishlist">
+								<i class="fas fa-heart"></i>
+								<span class="tooltipp">add to wishlist</span>
+							</button>
+							<input type="hidden" id="wishlistDataId" name="id" value="@product.Id"/>
+
+					</div>
 				</div>
 			</div>
-			<div class="add-to-cart">
-				<form asp-controller="Home" asp-action="Detail" asp-route-id="@product.Id" method="post" enctype="multipart/form-data">
-					<button class="add-to-cart-btn">
-						<i class="fa fa-shopping-cart"></i>
-						Add to Cart
-					</button>
-				</form>
-			</div>
+			}
 		</div>
-		}
 	</div>
 </div>
 
@@ -84,7 +109,53 @@
     @Html.PagedListPager(Model.Products, c => Href("~/Customer/Home/Index?page=" + c), PagedListRenderOptions.Classic)
 </div>
 
-
 @section Scripts{
+	<script src="//cdn.jsdelivr.net/npm/alertifyjs@1.11.2/build/alertify.min.js"></script>
+	<script type="text/javascript">
 
+	function addToCart(num) {
+
+		console.log('Add to cart');
+		console.log(num)
+		$.ajax({
+			type: "POST",
+			url: "/Customer/Order/AddToCart",
+			data: {id: num},
+		});
+		var index = $('#cartBadge').text();
+		console.log(index);
+		$('#cartBadge').text(parseInt(index) + parseInt(1));
+        alertify.success('Added to cart');
+    }
+
+	function addToWishlist(num) {
+
+		console.log('Add to wishlist');
+		console.log(num)
+		$.ajax({
+			type: "POST",
+			url: "/Customer/Home/AddToWishlist",
+			data: {id: num},
+		});
+		var index = $('#wishlistBadge').text();
+		console.log(index);
+		$('#wishlistBadge').text(parseInt(index) + parseInt(1));
+        alertify.success('Added to wishlist');
+    }
+        
+    $(function(){
+        var save = '@TempData["save"]'
+        if(save!='') {
+            alertify.success(save);
+        }
+        var edit = '@TempData["edit"]'
+        if(edit!='') {
+            alertify.success(edit);
+        }
+        var del = '@TempData["delete"]'
+        if (del!='') {
+            alertify.error(del);
+        }
+    })
+    </script>
 }

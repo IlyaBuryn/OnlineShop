@@ -1,0 +1,88 @@
+﻿@model Dto_Order
+@{
+    ViewData["Title"] = "Free Orders";
+
+    var products = Calculation.ViewToDictionary(Model.OrderDetails);
+    var sum = Calculation.GetSum(products);
+    var shipp = Model.DeliveryDetails.DeliveryType.Price;
+}
+
+<section class="h-100 gradient-custom">
+  <div class="container py-5 h-100">
+    <div class="row d-flex justify-content-center align-items-center h-100">
+      <div class="col-lg-10 col-xl-8">
+        <div class="card" style="border-radius: 10px;">
+          <div class="card-body p-4">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+              <p class="lead fw-normal text-primary mb-0">Receipt</p>
+              <p class="small text-muted mb-0">Receipt Voucher : @Model.OrderNo</p>
+            </div>
+            @foreach (var item in products)
+            {
+               <div class="card shadow-0 border mb-4">
+                <div class="card-body">
+                <div class="row">
+                  <div class="col-md-2">
+                    <img src="~/@item.Key.Image"
+                      class="img-fluid" alt="~/Images/noImage.png">
+                  </div>
+
+                  <div class="col-md-2 text-center d-flex justify-content-center align-items-center">
+                    <p class="text-muted mb-0">@item.Key.Name</p>
+                  </div>
+                  <div class="col-md-2 text-center d-flex justify-content-center align-items-center">
+                    <p class="text-muted mb-0 small">Qty: @item.Value</p>
+                  </div>
+                  <div class="col-md-2 text-center d-flex justify-content-center align-items-center">
+                    <p class="text-muted mb-0 small">$@item.Key.Price</p>
+                  </div>
+
+                </div>                
+              </div>
+            </div>             
+            }
+
+            <hr class="mb-4" style="background-color: #e0e0e0; opacity: 1;">
+
+            <div class="row d-flex align-items-center">
+                  <div class="col-md-2">
+                    <p class="text-muted mb-0 small">Track Order</p>
+                  </div>
+                  <div class="col-md-10">
+                    <div class="progress" style="height: 6px; border-radius: 16px;">
+                      <div class="progress-bar bg-primary" role="progressbar"
+                        style="width: 65%; border-radius: 16px;" aria-valuenow="65"
+                        aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                    <div class="d-flex justify-content-around mb-1">
+                      <p class="text-muted mt-1 mb-0 small ms-xl-5">Out for delivary</p>
+                      <p class="text-muted mt-1 mb-0 small ms-xl-5">Delivered</p>
+                    </div>
+                  </div>
+                </div>
+
+            <div class="d-flex justify-content-between pt-2">
+              <p class="fw-bold mb-0">Order Details</p>
+              <p class="text-muted mb-0"><span class="fw-bold me-4">Total</span> $@(sum + shipp)</p>
+            </div>
+
+            <div class="d-flex justify-content-between mb-5">
+              <p class="text-muted mb-0">Recepits Voucher : 18KU-62IIK</p>
+              <p class="text-muted mb-0"><span class="fw-bold me-4">Delivery Charges</span>@shipp</p>
+            </div>
+          </div>
+          <div class="card-footer border-0 px-4 py-5"
+            style="border-bottom-left-radius: 10px; border-bottom-right-radius: 10px;">
+            <button type="submit" class="btn btn-outline-success btn-rounded">Take Order</button>
+            @if (true)
+            {
+                <button type="submit" class="btn btn-outline-warning btn-rounded">Change Status</button>
+            }
+          </div>
+        </div>
+      </div>
+
+
+    </div>
+  </div>
+</section>

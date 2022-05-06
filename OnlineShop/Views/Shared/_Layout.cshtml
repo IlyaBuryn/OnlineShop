@@ -1,19 +1,32 @@
 ﻿﻿@using System.Net.Http
+@using Microsoft.AspNetCore.Identity
 @using OnlineShop.Models
 @using OnlineShop.Utility
 @using Microsoft.AspNetCore.Http
 @using BusinessLogic.DtoModels
 @using System.Diagnostics
+@using System.Security.Claims
 @inject IHttpContextAccessor HttpContextAccessor
 @{
     var userRole = HttpContextAccessor.HttpContext.Session.GetString("roleName");
-    int count = 0;
+    int cartCount = 0;
+    int wishCount = 0;
     List<Dto_Product> products = HttpContextAccessor.HttpContext.Session.Get<List<Dto_Product>>("products");
     if (products == null)
     {
         products = new List<Dto_Product>();
     }
-    count = products.Count();
+    cartCount = products.Count();
+
+    List<Dto_Product> wishlist = HttpContextAccessor.HttpContext.Session.Get<List<Dto_Product>>("wishlist");
+    if (wishlist == null)
+    {
+        wishlist = new List<Dto_Product>();
+    }
+    wishCount = wishlist.Count();
+    var t1 = HttpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.Role);
+
+    var currentRole = t1 != null ? t1.Value : null;
 }
 
 <!DOCTYPE html>
@@ -21,16 +34,19 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="IE=8" />
     <title>@ViewData["Title"] - OnlineShop</title>
 
-	<!-- Bootstrap -->
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" />
 
-	<link href="https://fonts.googleapis.com/css?family=Poppins:400,700&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
 
-	<!-- font awesome style -->
-	<link rel="stylesheet" type="text/css" href="css/font-awesome.min.css" />
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" rel="stylesheet" />
+
+    <!-- MDB -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/4.0.0/mdb.min.css" rel="stylesheet" />
 
 	<!-- responsive style -->
 	<link rel="stylesheet" type="text/css" href="css/responsive.css" />
@@ -39,10 +55,11 @@
  	<link rel="stylesheet" type="text/css" href="~/css/slick-theme.css"/>
     <link rel="stylesheet" type="text/css" href="~/css/nouislider.min.css"/>
 
-    <link rel="stylesheet" type="text/css" href="~/css/style.css"/>
+    <link rel="stylesheet" type="text/css" href="~/css/styleproducts.css"/>
     <link rel="stylesheet" type="text/css" href="~/css/stylenew.css"/>
     
     <link rel="stylesheet" href="~/lib/font-awesome/css/all.css"/>
+
     
     <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/css/alertify.min.css"/>
     <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/css/themes/bootstrap.min.css"/>
@@ -51,130 +68,162 @@
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.4/css/jquery.dataTables.min.css"/>
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/2.2.2/css/buttons.dataTables.min.css"/>
     
-    <link rel="stylesheet" href="~/css/site.css" />
+    <link rel="stylesheet" text="text/css" href="~/css/site.css" />
+    <link rel="stylesheet" type="text/css" href="~/css/header.css" />
 
     <style>
         .error{
             color: red;
         }
+
+        .body-container {
+            /*remove the container default padding attribute*/
+            padding-left: 0px !important;
+            padding-right: 0px !important;
+            /*increase width as per your need*/
+            max-width: 71%;
+        } 
     </style>
 </head>
 
 
-<body>
-    @*
-                    <partial name="_LoginPartial" />
-                    <ul class="navbar-nav flex-grow-1">
-                        @if (userRole == "Admin")
-                        {
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="Admin" asp-controller="ProductTypes" asp-action="Index">Product Types</a>
-                            </li>
+<body style="background-color: #fff">
+    <header>
+        <nav id="sidebarMenu" class="collapse d-lg-block sidebar collapse bg-light" >
+            <div class="position-sticky" >
+                <div class="list-group list-group-flush mx-3 mt-4">
 
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="Admin" asp-controller="SpecialTag" asp-action="Index">Tag Name</a>
-                            </li>
+                    
 
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="Admin" asp-controller="Product" asp-action="Index">Product</a>
-                            </li>
-                        }
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="Customer" asp-controller="Home" asp-action="Cart">
-                                <i class="fas fa-cart-arrow-down"></i>
-                                (@count)
-                            </a>
-                        </li>
-                    </ul>
-    *@
+                    <a asp-area="Customer" asp-controller="Home" asp-action="Index"
+                    class="list-group-item bg-light list-group-item-action py-2 ripple" aria-current="true">
+                        <i class="fas fa-chart-bar fa-fw me-3"></i>
+                        <span>Home</span>
+                    </a>
 
-    <header class="header_section">
-        <div class="header_top">
-            <div class="container-fluid">
-                <div class="top_nav_container">
-                    <!-- --- -->
-                    <div class="contact_nav">
-                        <a href="">
-                            <i class="fa fa-phone" aria-hidden="true"></i>
-                            <span>
-                                Info: INFO_FIELD_1
-                            </span>
-                        </a>
-                        <a href="">
-                            <i class="fa fa-envelope" aria-hidden="true"></i>
-                            <span>
-                                Info: INFO_FIELD_2
-                            </span>
-                        </a>
-                    </div>
-                    <!-- --- -->
-                    <form asp-controller="Search" asp-action="SearchIndex" class="search_form">
-                        <input type="hidden" value="1" name="page"/>
-                        <input type="text" name="searchString" class="input" placeholder="Search here...">
-                        <button class="search-btn">
-                            <i class="fa fa-search"></i>
-                        </button>
-                        
-                    </form>
-                    <!-- --- -->
-                    <button asp-area="Customer" asp-controller="Home" asp-action="Cart" type="submit" class="btn btn-primary">
-                        <i class="fa-solid fa-cart-shopping" aria-hidden="true"></i>
-                        Your Cart <span class="badge badge-light">@count</span>
-                    </button>
 
-                    <div class="user_option_box">
-                        <partial name="_LoginPartial" />
-                    </div>
+                    <a href="#"
+                    class="list-group-item bg-light list-group-item-action py-2 ripple" aria-current="false">
+                        <i class="fas fa-chart-bar fa-fw me-3"></i>
+                        <span>About us</span>
+                    </a>
+
+
+                    <a asp-area="Customer" asp-controller="Search" asp-action="Products"
+                    class="list-group-item bg-light list-group-item-action py-2 ripple" aria-current="false">
+                        <i class="fas fa-chart-bar fa-fw me-3"></i>
+                        <span>Product list</span>
+                    </a>
+
+                    @if (userRole == "Admin" || currentRole == "Admin")
+                    {
+                        <hr />
+
+                        <a asp-area="Admin" asp-controller="ProductTypes" asp-action="Index" 
+                        class="list-group-item bg-light list-group-item-action py-2 ripple" aria-current="false">
+                        <i class="fas fa-bars fa-fw me-3"></i>
+                        <span>Product types</span></a>
+
+                        <a asp-area="Admin" asp-controller="SpecialTag" asp-action="Index" 
+                        class="list-group-item bg-light list-group-item-action py-2 ripple" aria-current="false">
+                        <i class="fas fa-bars fa-fw me-3"></i>
+                        <span>Tags</span></a>
+
+                        <a asp-area="Admin" asp-controller="Product" asp-action="Index" 
+                        class="list-group-item bg-light list-group-item-action py-2 ripple" aria-current="false">
+                        <i class="fas fa-box-archive fa-fw me-3"></i>
+                        <span>Product types</span></a>
+
+                        <a asp-area="Admin" asp-controller="Role" asp-action="Index" 
+                        class="list-group-item bg-light list-group-item-action py-2 ripple" aria-current="false">
+                        <i class="fas fa-chain fa-fw me-3"></i>
+                        <span>Roles</span></a>
+
+                        <a asp-area="Admin" asp-controller="Role" asp-action="AssignUserRole" 
+                        class="list-group-item bg-light list-group-item-action py-2 ripple" aria-current="false">
+                        <i class="fas fa-user fa-fw me-3"></i>
+                        <span>Users</span></a>
+                    }
+
+                    @if (userRole == "Delivery" || currentRole == "Delivery")
+                    {
+                        <hr />
+                        <a asp-area="Delivery" asp-controller="Delivery" asp-action="Index" 
+                        class="list-group-item bg-light list-group-item-action py-2 ripple" aria-current="false">
+                        <i class="fas fa-truck fa-fw me-3"></i>
+                        <span>Delivery</span></a>
+
+
+                        <a asp-area="Delivery" asp-controller="Delivery" asp-action="MyOrders" 
+                        class="list-group-item bg-light list-group-item-action py-2 ripple" aria-current="false">
+                        <i class="fas fa-address-book fa-fw me-3"></i>
+                        <span>Delivered orders</span></a>
+                    }
+
+                    @if (currentRole != null)
+                    {
+                        <hr />
+                        <a asp-area="Identity" asp-page="/Account/Manage/Index"
+                        class="list-group-item bg-light list-group-item-action py-2 ripple" aria-current="false">
+                        <i class="fas fa-user fa-fw me-3"></i>
+                        <span>My Proffile</span></a>
+
+                        <a asp-area="Customer" asp-controller="Order" asp-action="MyOrders"
+                        class="list-group-item bg-light list-group-item-action py-2 ripple" aria-current="false">
+                        <i class="fas fa-clipboard-list fa-fw me-3"></i>
+                        <span>My Orders</span></a>
+                    }
+
+                    <p class="list-group-item bg-light list-group-item-action py-2 ripple">Status - @currentRole</p>
                 </div>
             </div>
-        </div>
-        <!-- --- -->
-        <div class="header_bottom">
+        </nav>
+
+
+        <nav id="main-navbar" class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
             <div class="container-fluid">
-                <nav class="navbar navbar-expand-lg custom_nav-container ">
-                    <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
-                        <span>
-                            OnlineShop
-                        </span>
-                    </a>
-                    <!-- --- -->
-                    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                        <span class=""> </span>
-                    </button>
-                    <!-- --- -->
-                    <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                        <ul class="navbar-nav ">
-                            @if (userRole == "Admin")
-                            {
-                                <li class="nav-item">
-                                    <a class="nav-link" asp-area="Admin" asp-controller="ProductTypes" asp-action="Index">Product Types</a>
-                                </li>
+                <button class="navbar-toggler" type="button" data-mdb-toggle="collapse" data-mdb-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-lable="Toggle navigation">
+                    <i class="fas fa-bars"></i>
+                </button>
 
-                                <li class="nav-item">
-                                    <a class="nav-link" asp-area="Admin" asp-controller="SpecialTag" asp-action="Index">Tag Name</a>
-                                </li>
+                <a class="navbar-brand text-primary" asp-area="Customer" asp-controller="Home" asp-action="Index">
+                    OnlineShop
+                </a>
 
-                                <li class="nav-item">
-                                    <a class="nav-link" asp-area="Admin" asp-controller="Product" asp-action="Index">Product</a>
-                                </li>
-                            }
-                            <li class="nav-item active">
-                                <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">Home <span class="sr-only">(current)</span></a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="about.html"> About</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="product.html">Products</a>
-                            </li>
-                        </ul>
-                    </div>
-                </nav>
+                <form asp-controller="Search" asp-action="SearchIndex" asp-area="Customer"
+                    class="d-none d-md-flex input-group w-auto my-auto">
+                    <input type="hidden" name="page" value="1"/>
+                    <input autocomplete="off" type="search" name="searchString" class="form-control rounded"
+                    placeholder='Search here...' style="margin-left: 40px; min-width: 350px;" />
+                    <span class="input-group-text border-0"><i class="fas fa-search"></i></span>
+                </form>
+
+                <ul class="navbar-nav ms-auto d-flex flex-row">
+                    <li class="nav-item">
+                        <a asp-area="Customer" asp-controller="Order" asp-action="Checkout" method="get"
+                        class="nav-link me-3 me-lg-0">
+                            <i class="fas fa-cart-shopping icon-2x"></i>
+                            <span id="cartBadge" class="badge rounded-pill badge-notification bg-danger">@cartCount</span>
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a asp-area="Customer" asp-controller="Home" asp-action="Wishlist" method="get"
+                        class="nav-link me-3 me-lg-0">
+                            <i class="fas fa-heart icon-2x"></i>
+                            <span id="wishlistBadge" class="badge rounded-pill badge-notification bg-danger">@wishCount</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <partial name="_LoginPartial"/>
+                    </li>
+                </ul>
             </div>
-        </div>
+        </nav>
     </header>
     
-    <div class="container">
+    
+    <div style="margin-top: 70px " class="container body-container">
         <main role="main" class="pb-3">
             @RenderBody()
         </main>
@@ -189,10 +238,13 @@
     </footer>
     
 
-    @*<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>*@
-
+    <!-- jQuery -->
 	<script src="~/js/jquery.min.js"></script>
-	<script src="~/js/bootstrap.min.js"></script>
+    <script src="~/js/Scripts/jquery.unobtrusive-ajax.min.js"></script>
+    
+    <!-- MDB -->
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/4.0.0/mdb.min.js"></script>
+
 	<script src="~/js/slick.min.js"></script>
 	<script src="~/js/nouislider.min.js"></script>
 	<script src="~/js/jquery.zoom.min.js"></script>
@@ -213,6 +265,6 @@
 	<script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 	<script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 
-    @RenderSection("Scripts", required: false)
+    @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

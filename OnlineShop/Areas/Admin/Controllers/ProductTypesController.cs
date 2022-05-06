@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 namespace OnlineShop.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    [Authorize]
+    [Authorize(Roles = "Admin")]
     public class ProductTypesController : Controller
     {
         private readonly IProductTypesManager _productTypesManager;

@@ -1,0 +1,122 @@
+﻿@using BusinessLogic.DtoModels;
+@model IEnumerable<Dto_Order>
+@{
+    ViewData["Title"] = "My Orders";
+}
+
+
+<br />
+<div class="row">
+    <div class="col-6">
+        <h2 class="text-info">Order List</h2>
+    </div>
+</div>
+
+<br />
+
+<table class="table align-middle mb-0 bg-white">
+    <thead class="bg-light">
+        <tr>
+            <th>@Html.DisplayNameFor(c => c.OrderNo)</th>
+            <th>Customer</th>
+            <th>@Html.DisplayNameFor(c => c.PhoneNo)</th>
+            <th>@Html.DisplayNameFor(c => c.OrderDate)</th>
+            <th>@Html.DisplayNameFor(c => c.DeliveryDetails.DeliveryType.Name)</th>
+            <th>@Html.DisplayNameFor(c => c.OrderDetails)</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.OrderNo</td>
+                <td>
+                    <div class="d-flex align-content-center">
+                        <div class="ms-3">
+                            <p class="fw-bold mb-1">@item.Name</p>
+                            <p class="text-muted mb-0">@item.Address</p>
+                        </div>
+                    </div>
+                </td>
+                <td>@item.PhoneNo</td>
+                <td>@item.OrderDate</td>
+                <td>@item.DeliveryDetails.DeliveryType.Name</td>
+                <td>
+                @foreach (var prod in Calculation.ViewToDictionary(item.OrderDetails))
+                {
+                    <p style="margin-bottom: 0rem;">(@prod.Value) @prod.Key.Name</p>
+                }
+                </td>
+                <td>
+                    <form asp-action="Invoice" asp-route-id="@item.Id" method="get">
+                        <button style="margin-bottom: 3px" type="submit" class="btn text-success btn-link btn-sm fw-bold btn-rounded border">
+                            Details
+                        </button>
+                    </form>
+                    <button type="button" class="btn text-danger btn-link btn-sm fw-bold btn-rounded border" data-mdb-toggle="modal" data-mdb-target="#exampleModal">
+                      Cancel
+                    </button>
+                </td>
+            </tr>
+
+            <!-- Modal -->
+            <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+              <div class="modal-dialog">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+                    <button type="button" class="btn-close" data-mdb-dismiss="modal" aria-label="Close"></button>
+                  </div>
+                  <div class="modal-body">Are you sure you want to delete the order?</div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-mdb-dismiss="modal">Close</button>
+                    <form asp-action="Cancel" asp-route-id="@item.Id" method="post">
+                        <button type="submit" class="btn btn-primary">Yes</button>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+        }
+    </tbody>
+</table>
+
+@section scripts{
+    <script src="//cdn.jsdelivr.net/npm/alertifyjs@1.13.1/build/alertify.min.js"></script>
+    
+    <script type="text/javascript">
+        
+        $(function(){
+            var save = '@TempData["save"]'
+            if(save!='') {
+                alertify.success(save);
+            }
+            var edit = '@TempData["edit"]'
+            if(edit!='') {
+                alertify.success(edit);
+            }
+            var del = '@TempData["delete"]'
+            if (del!='') {
+                alertify.error(del);
+            }
+        })
+
+        function addToCart(num) {
+
+		console.log('Add to cart');
+		console.log(num)
+		$.ajax({
+			type: "POST",
+			url: "/Customer/Order/AddToCart",
+			data: {id: num},
+		});
+		var index = $('#cartBadge').text();
+		console.log(index);
+		$('#cartBadge').text(parseInt(index) + parseInt(1));
+        alertify.success('Added to cart');
+    }
+    </script>
+}

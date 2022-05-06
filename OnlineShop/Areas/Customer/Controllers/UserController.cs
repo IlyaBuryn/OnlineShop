@@ -1,6 +1,5 @@
 ﻿using BusinessLogic.DtoModels;
 using BusinessLogic.Interfaces;
-using BusinessLogic.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
@@ -34,7 +33,7 @@ namespace OnlineShop.Areas.Customer.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(Dto_ApplicationUser user)
+        public async Task<IActionResult> Create(IdentityUser user)
         {
             if (ModelState.IsValid)
             {
@@ -45,7 +44,7 @@ namespace OnlineShop.Areas.Customer.Controllers
                 {
                     var isSaveRole = await _userManager.AddToRoleAsync(user, role: "User");
                     TempData["Save"] = "User has been created successfully";
-                    return RedirectToAction(nameof(Index));
+                    return RedirectToAction("index", "Home");
                 }
                 foreach (var error in result.Errors)
                 {
@@ -67,15 +66,13 @@ namespace OnlineShop.Areas.Customer.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Edit(Dto_ApplicationUser user)
+        public async Task<IActionResult> Edit(IdentityUser user)
         {
             var userInfo = _appUserManager.GetById(user.Id);
             if (userInfo == null)
             {
                 return NotFound();
             }
-            userInfo.FirstName = user.FirstName;
-            userInfo.LastName = user.LastName;
 
             var result = await _userManager.UpdateAsync(userInfo);
             if (result.Succeeded)
@@ -111,7 +108,7 @@ namespace OnlineShop.Areas.Customer.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Locout(Dto_ApplicationUser user)
+        public async Task<IActionResult> Locout(IdentityUser user)
         {
             var userInfo = _appUserManager.GetById(user.Id);
             if (userInfo == null)
@@ -139,7 +136,7 @@ namespace OnlineShop.Areas.Customer.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Active(Dto_ApplicationUser user)
+        public async Task<IActionResult> Active(IdentityUser user)
         {
             var userInfo = _appUserManager.GetById(user.Id);
             if (userInfo == null)
@@ -167,7 +164,7 @@ namespace OnlineShop.Areas.Customer.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Delete(Dto_ApplicationUser user)
+        public async Task<IActionResult> Delete(IdentityUser user)
         {
             var userInfo = _appUserManager.GetById(user.Id);
             if (userInfo == null)

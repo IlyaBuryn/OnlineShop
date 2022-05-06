@@ -41,6 +41,16 @@ namespace BusinessLogic.DtoModels
         [ForeignKey("SpecialTagId")]
         public Dto_SpecialTag SpecialTag { get; set; }
 
+        public override bool Equals(object? obj)
+        {
+            return obj is Dto_Product product &&
+                   Id == product.Id &&
+                   Name == product.Name;
+        }
 
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(Id, Name);
+        }
     }
 }

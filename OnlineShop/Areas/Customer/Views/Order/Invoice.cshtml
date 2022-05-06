@@ -1,0 +1,134 @@
+﻿@model Dto_Order
+@{
+    var products = Calculation.ViewToDictionary(Model.OrderDetails);
+    var sum = Calculation.GetSum(products);
+    var shipp = Model.DeliveryDetails.DeliveryType.Price;
+
+    Random rnd = new Random();
+    var randId = rnd.Next(2000000, 9999999);
+    int index = 0;
+
+    int GetIndex()
+    {
+        index++;
+        return index;
+    }
+}
+<div class="card">
+  <div class="card-body">
+    <div class="container mb-5 mt-3">
+      <div class="row d-flex align-items-baseline">
+        <div class="col-xl-9">
+          <p style="color: #7e8d9f;font-size: 20px;">Invoice >> <strong>ID: @randId</strong></p>
+        </div>
+        <div class="col-xl-3 float-end">
+          <a class="btn btn-light text-capitalize border-1" data-mdb-ripple-color="dark"><i
+              class="fas fa-print text-primary"></i> Print</a>
+          <a class="btn btn-light text-capitalize border-1" data-mdb-ripple-color="dark"><i
+              class="far fa-file-pdf text-danger"></i> Export</a>
+        </div>
+        <hr>
+      </div>
+
+      <div class="container">
+        <div class="col-md-12">
+          <div class="text-center text-primary fs-2 text">
+              <a asp-action="Index" asp-controller="Home"><strong>OnlineShop</strong></a>
+          </div>
+
+        </div>
+
+
+        <div class="row">
+          <div class="col-xl-8">
+            <ul class="list-unstyled">
+              <li class="text-muted"><i class="fas fa-user"></i> To:<span class="text-primary"> @Model.Name</span></li>
+              <li class="text-muted"><i class="fas fa-address-book"></i> @Model.Address</li>
+              <li class="text-muted"><i class="fas fa-at"></i> @Model.Email</li>
+              <li class="text-muted"><i class="fas fa-phone"></i> 123-456-789</li>
+            </ul>
+          </div>
+          <div class="col-xl-4">
+            <p class="text-muted">Invoice</p>
+            <ul class="list-unstyled">
+              <li class="text-muted"><i class="fas fa-circle text-primary"></i> <span
+                  class="fw-bold">Order No:</span>#@Model.OrderNo</li>
+              <li class="text-muted"><i class="fas fa-circle text-primary"></i> <span
+                  class="fw-bold">Creation Date: </span>@Model.OrderDate</li>
+                  @if (Model.DeliveryDetails.DeliveryStatus.Name == "Unpaid.")
+                  {
+                      <li class="text-muted"><i class="fas fa-circle text-primary"></i>
+                            <span
+                            class="me-1 fw-bold">Status:</span><span class="badge bg-warning text-black fw-bold">
+                            Unpaid</span></li>
+                  }
+                  else
+                  {
+                      <li class="text-muted"><i class="fas fa-circle text-primary"></i>
+                            <span
+                            class="me-1 fw-bold">Status:</span><span class="badge bg-info text-black fw-bold">
+                            Application has been created.</span></li>
+                  }
+            </ul>
+          </div>
+        </div>
+
+        <div class="row my-2 mx-1 justify-content-center">
+          <table class="table table-striped table-borderless" style="margin-top: 20px">
+            <thead class="text-white bg-primary">
+              <tr>
+                <th scope="col">#</th>
+                <th scope="col">Description</th>
+                <th scope="col">Qty</th>
+                <th scope="col">Unit Price</th>
+                <th scope="col">Amount</th>
+              </tr>
+            </thead>
+            <tbody>
+            @foreach (var item in products)
+            {
+              <tr>
+                <th scope="row">@GetIndex()</th>
+                <td>@item.Key.Name</td>
+                <td>@item.Value</td>
+                <td>$@item.Key.Price</td>
+                <td>$@(item.Key.Price * item.Value)</td>
+              </tr>
+            }
+            </tbody>
+          </table>
+        </div>
+        <div class="row">
+          <div class="col-xl-8">
+            <p class="ms-3">Add additional notes and payment information</p>
+
+          </div>
+          <div class="col-xl-3">
+            <ul class="list-unstyled">
+              <li class="text-muted ms-3"><span class="text-black me-4">SubTotal</span>$@sum</li>
+              <li class="text-muted ms-3 mt-2"><span class="text-black me-4">Shipping</span>$@shipp</li>
+            </ul>
+            <p class="text-black float-start"><span class="text-black me-3"> Total Amount</span><span
+                style="font-size: 25px;">$@(sum + shipp)</span></p>
+          </div>
+        </div>
+        <hr>
+        <div class="row">
+          <div class="col-xl-10">
+            <p>Thank you for your purchase</p>
+          </div>
+          <div class="col-xl-2">
+              @if (@Model.DeliveryDetails.PaymentType.Name != "Cash")
+              {
+                  <form asp-action="Pay" asp-route-id="@Model.Id" method="get">
+                    <button type="submit" class="btn btn-primary text-capitalize"
+                        style="background-color:#60bdf3 ;">Pay Now</button>
+                  </form>
+              }
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>

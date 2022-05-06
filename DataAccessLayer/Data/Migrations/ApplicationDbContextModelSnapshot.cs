@@ -30,23 +30,54 @@ namespace DataAccessLayer.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
+                    b.Property<int>("DeliveryStatusId")
+                        .HasColumnType("int");
+
                     b.Property<int>("DeliveryTypeId")
                         .HasColumnType("int");
+
+                    b.Property<bool?>("IsBusyShipping")
+                        .HasColumnType("bit");
 
                     b.Property<string>("OrderComment")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("OrderId")
+                        .HasColumnType("int");
 
                     b.Property<int>("PaymentTypeId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
+                    b.HasIndex("DeliveryStatusId");
+
                     b.HasIndex("DeliveryTypeId");
+
+                    b.HasIndex("OrderId")
+                        .IsUnique();
 
                     b.HasIndex("PaymentTypeId");
 
                     b.ToTable("DeliveryDetails");
+                });
+
+            modelBuilder.Entity("DataAccessLayer.Models.DeliveryStatus", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("DeliveryStatus");
                 });
 
             modelBuilder.Entity("DataAccessLayer.Models.DeliveryType", b =>
@@ -81,9 +112,6 @@ namespace DataAccessLayer.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("DeliveryDetailsId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -104,8 +132,6 @@ namespace DataAccessLayer.Data.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("DeliveryDetailsId");
 
                     b.ToTable("Orders");
                 });
@@ -289,10 +315,6 @@ namespace DataAccessLayer.Data.Migrations
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Discriminator")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Email")
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
@@ -344,8 +366,6 @@ namespace DataAccessLayer.Data.Migrations
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.ToTable("AspNetUsers", (string)null);
-
-                    b.HasDiscriminator<string>("Discriminator").HasValue("IdentityUser");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
@@ -429,26 +449,23 @@ namespace DataAccessLayer.Data.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("DataAccessLayer.Models.ApplicationUser", b =>
-                {
-                    b.HasBaseType("Microsoft.AspNetCore.Identity.IdentityUser");
-
-                    b.Property<string>("FirstName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("LastName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasDiscriminator().HasValue("ApplicationUser");
-                });
-
             modelBuilder.Entity("DataAccessLayer.Models.DeliveryDetails", b =>
                 {
+                    b.HasOne("DataAccessLayer.Models.DeliveryStatus", "DeliveryStatus")
+                        .WithMany()
+                        .HasForeignKey("DeliveryStatusId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("DataAccessLayer.Models.DeliveryType", "DeliveryType")
                         .WithMany()
                         .HasForeignKey("DeliveryTypeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DataAccessLayer.Models.Order", "Order")
+                        .WithOne("DeliveryDetails")
+                        .HasForeignKey("DataAccessLayer.Models.DeliveryDetails", "OrderId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -458,20 +475,13 @@ namespace DataAccessLayer.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.Navigation("DeliveryStatus");
+
                     b.Navigation("DeliveryType");
 
+                    b.Navigation("Order");
+
                     b.Navigation("PaymentType");
-                });
-
-            modelBuilder.Entity("DataAccessLayer.Models.Order", b =>
-                {
-                    b.HasOne("DataAccessLayer.Models.DeliveryDetails", "DeliveryDetails")
-                        .WithMany()
-                        .HasForeignKey("DeliveryDetailsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("DeliveryDetails");
                 });
 
             modelBuilder.Entity("DataAccessLayer.Models.OrderDetails", b =>
@@ -565,6 +575,9 @@ namespace DataAccessLayer.Data.Migrations
 
             modelBuilder.Entity("DataAccessLayer.Models.Order", b =>
                 {
+                    b.Navigation("DeliveryDetails")
+                        .IsRequired();
+
                     b.Navigation("OrderDetails");
                 });
 #pragma warning restore 612, 618

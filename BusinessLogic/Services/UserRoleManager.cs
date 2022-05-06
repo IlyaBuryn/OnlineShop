@@ -2,6 +2,7 @@
 using BusinessLogic.Interfaces;
 using BusinessLogic.Maps;
 using DataAccessLayer.Data;
+using Microsoft.AspNetCore.Identity;
 
 namespace BusinessLogic.Services
 {
@@ -17,7 +18,7 @@ namespace BusinessLogic.Services
         {
             var result = from ur in _context.UserRoles
                          join r in _context.Roles on ur.RoleId equals r.Id
-                         join a in _context.ApplicationUsers on ur.UserId equals a.Id
+                         join a in _context.Users on ur.UserId equals a.Id
                          select new Dto_Vm_UserRoleMapping()
                          {
                              UserId = ur.UserId,
@@ -28,13 +29,13 @@ namespace BusinessLogic.Services
             return result;
         }
 
-        public Dto_ApplicationUser GetUserById(string id)
+        public IdentityUser GetUserById(string id)
         {
-            var item = _context.ApplicationUsers.FirstOrDefault(x => x.Id == id);
-            return UserRoleMapper.CastAppUserModelToDto(item);
+            var item = _context.Users.FirstOrDefault(x => x.Id == id);
+            return item;
         }
 
-        public Dto_Vm_SessionUserVm GetUsersForLogin(Dto_ApplicationUser userInfo, string inputEmail)
+        public Dto_Vm_SessionUserVm GetUsersForLogin(IdentityUser userInfo, string inputEmail)
         {
             return (from ur in _context.UserRoles
                     join r in _context.Roles on ur.RoleId equals r.Id
@@ -46,10 +47,11 @@ namespace BusinessLogic.Services
                     }).FirstOrDefault();
         }
 
-        public List<Dto_ApplicationUser> GetUsersIdWithLockout()
+        public List<IdentityUser> GetUsersIdWithLockout()
         {
-            var items = _context.ApplicationUsers.Where(x => x.LockoutEnd < System.DateTime.Now || x.LockoutEnd == null).ToList();
-            return UserRoleMapper.CastAppUserModelToDto(items);
+            var items = _context.Users.Where(x => x.LockoutEnd < System.DateTime.Now || x.LockoutEnd == null).ToList();
+            return items;
+            return items;
         }
     }
 }

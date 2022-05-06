@@ -41,30 +41,7 @@ namespace OnlineShop.Areas.Customer.Controllers
             return View(resultItem);
         }
 
-        public async Task<IActionResult> SearchIndex(int? page, string searchString)
-        {
-            List<Dto_Product> products = _productManager.FindFullProductsThatContainName(searchString).ToList();
-            if (products == null)
-            {
-                return NotFound();
-            }
-            ViewBag.SearchString = searchString;
-            return View(products.ToPagedList(page ?? 1, 1));
-        }
-
-        public IActionResult Privacy()
-        {
-            return View();
-        }
-
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new Dto_ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-        }
-
-        // GET Product details action method
-        public async Task<ActionResult> Detail(int? id)
+        public async Task<IActionResult> Detail(int? id)
         {
             if (id == null)
             {
@@ -76,16 +53,25 @@ namespace OnlineShop.Areas.Customer.Controllers
             {
                 return NotFound();
             }
-            
+
+            var reviews = await _productReviewManager.GetReviews(product);
+            HttpContext.Session.Set("reviews", reviews);
+            var specs = await _productSpecManager.GetProductSpecs(product);
+            HttpContext.Session.Set("specs", specs);
+
             await MakeViewData(product);
 
             return View(product);
         }
 
-        // POST Product details action method
+        [HttpGet]
+        public IActionResult EmptyWishlist()
+        {
+            return View();
+        }
+
         [HttpPost]
-        [ActionName("Detail")]
-        public async Task<ActionResult> ProductDetail(int? id)
+        public async Task<IActionResult> AddToWishlist(int? id)
         {
             List<Dto_Product> products;
             if (id == null)
@@ -99,7 +85,7 @@ namespace OnlineShop.Areas.Customer.Controllers
                 return NotFound();
             }
 
-            products = HttpContext.Session.Get<List<Dto_Product>>("products");
+            products = HttpContext.Session.Get<List<Dto_Product>>("wishlist");
             if (products == null)
             {
                 products = new List<Dto_Product>();
@@ -108,64 +94,63 @@ namespace OnlineShop.Areas.Customer.Controllers
             await MakeViewData(product);
 
             products.Add(product);
-            HttpContext.Session.Set("products", products);
-            return View(product);
+            HttpContext.Session.Set("wishlist", products);
+            if (HttpContext.Session.Get<bool>("IsFromDetails") == true)
+                return RedirectToAction(nameof(Detail), new {id = id});
+            else
+                return RedirectToAction(nameof(Index));
 
         }
 
-        //GET Remove action methdo
         [ActionName("Remove")]
-        public async Task<IActionResult> RemoveToCart(int? id)
+        public IActionResult RemoveFromWishlist(int? id)
         {
-            List<Dto_Product> products = HttpContext.Session.Get<List<Dto_Product>>("products");
+            var products = HttpContext.Session.Get<List<Dto_Product>>("wishlist");
             if (products != null)
             {
                 var product = products.FirstOrDefault(c => c.Id == id);
                 if (product != null)
                 {
                     products.Remove(product);
-                    HttpContext.Session.Set("products", products);
+                    HttpContext.Session.Set("wishlist", products);
                 }
             }
 
-            return products.Count == 0 ? RedirectToAction(nameof(Index)) :
-                RedirectToAction(nameof(Cart));
+            return products.Count == 0 ? RedirectToAction(nameof(EmptyWishlist)) :
+                RedirectToAction(nameof(WishList));
         }
 
         [HttpPost]
         public IActionResult Remove(int? id)
         {
-            List<Dto_Product> products = HttpContext.Session.Get<List<Dto_Product>>("products");
+            var products = HttpContext.Session.Get<List<Dto_Product>>("wishlist");
             if (products != null)
             {
                 var product = products.FirstOrDefault(c => c.Id == id);
                 if (product != null)
                 {
                     products.Remove(product);
-                    HttpContext.Session.Set("products", products);
+                    HttpContext.Session.Set("wishlist", products);
                 }
             }
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(WishList));
         }
 
-        // GET product Cart action method
-        public IActionResult Cart()
+
+        public IActionResult WishList()
         {
-            List<Dto_Product> products = HttpContext.Session.Get<List<Dto_Product>>("products");
+            List<Dto_Product> products = HttpContext.Session.Get<List<Dto_Product>>("wishlist");
             if (products == null)
             {
                 products = new List<Dto_Product>();
             }
-            return View(products);
+            return products.Count == 0 ? RedirectToAction(nameof(EmptyWishlist)) : View(products);
         }
 
         private async Task MakeViewData(Dto_Product product)
         {
             ViewData["productDesc"] = await _productSpecManager.GetProductDescription(product);
-            ViewData["productChars"] = await _productSpecManager.GetProductSpecs(product);
             ViewData["reviewRate"] = await _productReviewManager.GetAverageRate(product);
-            ViewData["reviews"] = await _productReviewManager.GetReviews(product);
-            ViewData["colors"] = await _productSpecManager.GetProductColors(product);
 
             ViewData["rateof5"] = await _productReviewManager.GetCountOfrates(5, product);
             ViewData["rateof4"] = await _productReviewManager.GetCountOfrates(4, product);
@@ -173,5 +158,17 @@ namespace OnlineShop.Areas.Customer.Controllers
             ViewData["rateof2"] = await _productReviewManager.GetCountOfrates(2, product);
             ViewData["rateof1"] = await _productReviewManager.GetCountOfrates(1, product);
         }
+
+        public IActionResult Privacy()
+        {
+            return View();
+        }
+
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        public IActionResult Error()
+        {
+            return View(new Dto_ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        }
     }
 }
+

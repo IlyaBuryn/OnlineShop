@@ -1,0 +1,12 @@
+﻿@model int
+
+<td style="width: 150px">
+    <div class="btn-group">
+        <a asp-action="TakeOrder" style="margin-left: 5px" class="btn-primary btn" asp-route-id="@Model">
+            <i class="far fa-edit"></i>
+        </a>
+        <a asp-action="Details" style="margin-left: 5px" class="btn-success btn" asp-route-id="@Model">
+            <i class="far fa-list-alt"></i>
+        </a>
+    </div>
+</td>
